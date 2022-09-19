@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'controller'
+package_name = 'remote_ctrl_interface'
 
 setup(
     name=package_name,
@@ -13,15 +13,13 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='xavier',
-    maintainer_email='jknuds19@student.aau.dk',
+    maintainer='root',
+    maintainer_email='abmo19@student.aau.dk',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'motor_node = exomy.motor_node:main',
-            'Kinematics_node = exomy.Kinematics_node:main'
         ],
     },
 )
