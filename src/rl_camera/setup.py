@@ -20,6 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'RLModel_node = exomy.RLModel_node:main',
+            'Camera_node = exomy.Camera_node:main'
         ],
     },
 )
