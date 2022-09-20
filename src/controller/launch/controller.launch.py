@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import os
 from launch import LaunchDescription
 from launch_ros.actions import Node
@@ -30,3 +31,17 @@ def generate_launch_description():
         kinematics,
         motors
     ])
+=======
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='joy',
+            namespace='joy',
+            executable='joy',
+            name='joy',
+        ),
+    ])
+>>>>>>> 2924dfd26b6d81b6d03823ebb7767912e9313d87
