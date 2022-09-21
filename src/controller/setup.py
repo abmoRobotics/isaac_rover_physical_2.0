@@ -23,8 +23,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'motor_node = exomy.motor_node:main',
-            'Kinematics_node = exomy.Kinematics_node:main'
+            #'motor_node = .motor_node:main',
+            #'Kinematics_node = exomy.Kinematics_node:main',
+            'joy_listener = controller.joystik:main'
         ],
     },
 )
