@@ -6,27 +6,19 @@ from launch.actions import DeclareLaunchArgument, ExecuteProcess, TimerAction
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, PythonExpression
 
-namespace_ = 'controller'
+namespace_ = 'remote_ctrl_interface'
+
 
 def generate_launch_description():
     
-    kinematics = Node(
-        package='controller',
-        executable='Kinematics_node',
-        name='Kinematics_node',
+    live_feed = Node(
+        package='remote_ctrl_interface',
+        executable='live_feed',
+        name='live_feed',
         namespace=namespace_,
         output='screen'
     )
-    motors = Node(
-        package='controller',
-        executable='motor_node',
-        name='motor_node',
-        namespace=namespace_,
-        output='screen'
-    )
-    
-    
+
     return LaunchDescription([
-        kinematics,
-        motors
+        live_feed,
     ])

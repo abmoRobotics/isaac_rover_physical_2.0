@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.timer import Timer
-from exomy_msgs.msg import MotorCommands, Actions
+from rover_msgs.msg import MotorCommands, Actions
 import sys
 sys.path.append('/home/xavier/isaac_rover_physical/exomy/scripts/utils')
 from kinematicsCPU import kinematicsCPU #Kinematics
