@@ -5,6 +5,8 @@ import rclpy
 from rclpy.node import Node
 import sys
 from sensor_msgs.msg import Joy
+import math
+import cmath
 
 max_speed = 1
 new_max = 0
@@ -46,8 +48,14 @@ class joy_listener(Node):
 
         #self.get_logger().info("LR_cross: -1    ==  " + str(LR_cross))
 
-        #self.get_logger().info("LR_cross: " + str(LR_corss) + " UP_cross: " + str(UP_cross))
         
+        u=-LR_stick
+        v=UD_stick
+        self.get_logger().info("LR_STICK: " + str(u) + " UD_STICK: " + str(v))
+        x=1/2*math.sqrt(abs(2+math.pow(u,2)-math.pow(v,2)+2*u*math.sqrt(2)))-1/2*math.sqrt(abs(2+math.pow(u,2)-math.pow(v,2)-2*u*math.sqrt(2)))
+
+        y=1/2*math.sqrt(abs(2-math.pow(u,2)+math.pow(v,2)+2*v*math.sqrt(2)))-1/2*math.sqrt(abs(2-math.pow(u,2)+math.pow(v,2)-2*v*math.sqrt(2)))
+        self.get_logger().info("x: " + str(x) + " y: " + str(v) )
         if LR_cross == -1.0 :
             r = 1
             l = 0 
