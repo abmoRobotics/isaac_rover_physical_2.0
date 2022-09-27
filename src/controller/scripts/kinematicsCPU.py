@@ -1,3 +1,5 @@
+from platform import node
+from typing_extensions import Self
 import numpy as np
 import math
 
@@ -24,6 +26,7 @@ def kinematicsCPU(lin_vel_x, ang_vel):
         """
         # If the angular velociy is 0, the angles for the wheel are set to 0
         if ang_vel == 0: 
+            print("ang vel 0")
             steering_angles[FL] = 0.0
             steering_angles[FR] = 0.0
             steering_angles[CL] = 0.0
@@ -60,6 +63,7 @@ def kinematicsCPU(lin_vel_x, ang_vel):
         """
         # Speed moving forward/backward = linear velocity 
         if ang_vel == 0: 
+            print("ang vel 0 motors")
             motor_speeds[FL] = float(-lin_vel_x)
             motor_speeds[FR] = float(lin_vel_x)
             motor_speeds[CL] = float(-lin_vel_x)

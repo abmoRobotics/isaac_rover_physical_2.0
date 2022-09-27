@@ -8,12 +8,22 @@ from sensor_msgs.msg import Joy
 import numpy as np
 import math
 import cmath
+import importlib.util
+
+spec=importlib.util.spec_from_file_location("kinematicsCPU","/home/xavier/Documents/isaac_rover_physical_2.0/src/controller/scripts/kinematicsCPU.py")
+foo=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(foo)
+#import scripts.kinematicsCPU as kin
+#sys.path.append('/home/xavier/Documents/isaac_rover_physical_2.0/src/controller/scripts/kinematicsCPU.py')
+#from kinematicsCPU.py import kinematicsCPU
 
 max_speed = 1
 new_max = 0
 new_min=0
 linear_vel=0
 ang=0
+t=0
+ang_vel=0
 
 global mode, autom
 mode=0
@@ -29,7 +39,7 @@ class joy_listener(Node):
 
 
     def listener_callback(self, msg):
-        global autom,mode,ang
+        global autom,mode,ang,linear_vel,t,ang_vel
 
         #IMPORTANT: mode button changes the joystick's mapping. Make sure the little led next to it is off 
 
@@ -69,58 +79,97 @@ class joy_listener(Node):
 
         u=-LR_stick
         v=UD_stick
-        self.get_logger().info("LR_STICK: " + str(u) + " UD_STICK: " + str(v))
+        #self.get_logger().info("LR_STICK: " + str(u) + " UD_STICK: " + str(v))
         x=1/2*math.sqrt(abs(2+math.pow(u,2)-math.pow(v,2)+2*u*math.sqrt(2)))-1/2*math.sqrt(abs(2+math.pow(u,2)-math.pow(v,2)-2*u*math.sqrt(2)))
 
         y=1/2*math.sqrt(abs(2-math.pow(u,2)+math.pow(v,2)+2*v*math.sqrt(2)))-1/2*math.sqrt(abs(2-math.pow(u,2)+math.pow(v,2)-2*v*math.sqrt(2)))
         
         r=math.sqrt(math.pow(x,2)+math.pow(y,2))
 
-        if 0.0<=u<=1.0 and abs(v)==0.0:
-            ang=0
-        elif 0.0<=u<=1.0 and 0.0<=v<=1.0:
-            ang=np.arctan(v/u)
-        elif 0.0<=v<=1.0 and abs(u)==0.0:
-            ang=cmath.pi/2
-        elif -1.0<=u<=-0.0 and 0.0<=v<=1.0:
-            ang=np.arctan(v/u)+cmath.pi
-        elif -1.0<=u<=-0.0 and abs(v)==0.0:
-            ang=cmath.pi
         
-        elif -1.0<=v<=-0.0 and abs(u)==0.0:
-            ang=cmath.pi*(-1/2)
-        
-        
-
-    
-        self.get_logger().info("x: " + str(x) + " y: " + str(v) + " r: " + str(r)+  " a: " + str(ang))
+        #self.get_logger().info("x: " + str(x) + " y: " + str(v) + " r: " + str(r)+  " a: " + str(ang))
+       
         
         if autom==0:
-
+            
             if mode == 2:
                 new_max = ((0.75 * max_speed)*butten_LT)/-2
                 new_min = ((0.75 * max_speed)*butten_RT)/2
                 linear_vel=new_max + new_min
-                self.get_logger().info("Mode" + str(mode) + " Speed LR: " + str(new_max)+" Speed RT: " + str(new_min)+" Linear v: " + str(linear_vel))
+                #self.get_logger().info("Mode" + str(mode) + " Speed LR: " + str(new_max)+" Speed RT: " + str(new_min)+" Linear v: " + str(linear_vel))
 
             elif mode == 1:
                 new_max = ((0.50 * max_speed)*butten_LT)/-2
                 new_min = ((0.50 * max_speed)*butten_RT)/2
                 linear_vel=new_max + new_min
-                self.get_logger().info("Mode" + str(mode) + " Speed: " + str(new_max)+" Speed RT: " + str(new_min))
+                #self.get_logger().info("Mode" + str(mode) + " Speed: " + str(new_max)+" Speed RT: " + str(new_min))
 
             elif mode == 3:
                 new_max = ((1.00 * max_speed)*butten_LT)/-2
                 new_min = ((1.00 * max_speed)*butten_RT)/2
                 linear_vel=new_max + new_min
-                self.get_logger().info("Mode" + str(mode) + " Speed: " + str(new_max)+" Speed RT: " + str(new_min))
+                #self.get_logger().info("Mode" + str(mode) + " Speed: " + str(new_max)+" Speed RT: " + str(new_min))
             
             elif mode == 4:
                 new_max = ((0.25 * max_speed)*butten_LT)/-2
                 new_min = ((0.25 * max_speed)*butten_RT)/2
                 linear_vel=new_max + new_min
-                self.get_logger().info("Mode" + str(mode) + " Speed: " + str(new_max)+" Speed RT: " + str(new_min))
-                
+                #self.get_logger().info("Mode" + str(mode) + " Speed: " + str(new_max)+" Speed RT: " + str(new_min))
+            if 0.0==abs(u) and abs(v)==0.0:
+                ang=0
+                ang_vel=0
+                linear_vel=0
+            if 0.0<=u<=1.0 and abs(v)==0.0:
+                ang=0
+                ang_vel=linear_vel
+                linear_vel=0
+            elif 0.0<u<=1.0 and 0.0<v<=1.0:
+                ang=np.arctan(v/u)
+                ang_vel=linear_vel-(ang*linear_vel/(cmath.pi/2))
+                linear_vel=ang*linear_vel/(cmath.pi/2)
+            elif 0.0<v<=1.0 and abs(u)==0.0:
+                ang=cmath.pi/2
+                ang_vel=0
+                linear_vel=linear_vel
+            elif -1.0<=u<-0.0 and 0.0<v<=1.0:
+                ang=np.arctan(v/u)+cmath.pi
+                ang_vel=-((ang*linear_vel/(cmath.pi/2))-linear_vel)
+                linear_vel=(-linear_vel+(ang*linear_vel/(cmath.pi/2)))
+            elif -1.0<=u<-0.0 and abs(v)==0.0:
+                ang=cmath.pi
+                ang_vel=-linear_vel
+                linear_vel=0
+            elif -1.0<=u<-0.0 and -1.0<=v<-0.0:
+                ang=np.arctan(v/u)-cmath.pi
+            elif -1.0<=v<-0.0 and abs(u)==0.0:
+                ang=cmath.pi*(-1/2)
+                ang_vel=0
+            elif 0.0<u<=1.0 and -1.0<v<0.0:
+                ang=np.arctan(v/u)
+
+            self.get_logger().info("lin: " + str(linear_vel) + " ang: " + str(ang_vel))
+            """""
+            if linear_vel!=0:
+                t=(ang)/linear_vel
+
+            if t!=0:
+                ang_vel=ang/t
+                self.get_logger().info("lin: " + str(linear_vel) + " ang: " + str(ang_vel)) 
+            """"""
+
+            """""""
+            if r!=0:
+                ang_vel=linear_vel/r
+            else:
+                ang_vel=0
+                #self.get_logger().info("lin: " + str(linear_vel) + " ang: " + str(ang_vel)) 
+            
+                #foo.kinematicsCPU(linear_vel,ang_vel)
+            """
+            #self.get_logger().info(str(foo.kinematicsCPU(linear_vel,ang_vel)))
+
+    
+            
     
 
         
