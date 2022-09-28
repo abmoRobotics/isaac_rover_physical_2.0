@@ -25,9 +25,12 @@ ang=0
 t=0
 ang_vel=0
 
-global mode, autom
+global mode, autom,rad,ba,bb
 mode=0
 autom=1
+rad=0
+ba=0
+bb=0
 
 class joy_listener(Node):
 
@@ -39,7 +42,7 @@ class joy_listener(Node):
 
 
     def listener_callback(self, msg):
-        global autom,mode,ang,linear_vel,t,ang_vel
+        global autom,mode,ang,linear_vel,t,ang_vel,rad,ba,bb,new_max
 
         #IMPORTANT: mode button changes the joystick's mapping. Make sure the little led next to it is off 
 
@@ -56,13 +59,20 @@ class joy_listener(Node):
         button_X = msg.buttons[2] # Starts the automatic mode
 
         butten_LT = msg.axes[2] - 1# Increse or decrese the speed of the robot forward
-        butten_RT = msg.axes[5]-1 # Increse or decrese the speed of the robot backward
+        butten_RT = msg.axes[5]-1 # Not functional
 
         #self.get_logger().info("LR_cross: -1    ==  " + str(LR_cross))
         if button_Y==1:
             autom=0
         elif button_X==1:
             autom=1 
+        if button_A==1:
+            ba=1
+            bb=0
+        if button_B==1:
+            ba=0
+            bb=1
+
         if LR_cross == -1.0 :
             mode=1
 
@@ -74,6 +84,9 @@ class joy_listener(Node):
         
         elif UP_cross == 1.0 :
             mode=3
+
+        elif button_A==1:
+            ba=1
         #self.get_logger().info("auto: " + str(autom) + " x: " + str(button_X)+ " y: " + str(button_Y))
         #self.get_logger().info("Mode" + str(LR_cross)+ str(UP_cross))
 
@@ -85,47 +98,54 @@ class joy_listener(Node):
         y=1/2*math.sqrt(abs(2-math.pow(u,2)+math.pow(v,2)+2*v*math.sqrt(2)))-1/2*math.sqrt(abs(2-math.pow(u,2)+math.pow(v,2)-2*v*math.sqrt(2)))
         
         r=math.sqrt(math.pow(x,2)+math.pow(y,2))
-
         
         #self.get_logger().info("x: " + str(x) + " y: " + str(v) + " r: " + str(r)+  " a: " + str(ang))
        
-        
+       
+            
         if autom==0:
             
             if mode == 2:
                 new_max = ((0.75 * max_speed)*butten_LT)/-2
-                new_min = ((0.75 * max_speed)*butten_RT)/2
-                linear_vel=new_max + new_min
+                linear_vel=new_max
                 #self.get_logger().info("Mode" + str(mode) + " Speed LR: " + str(new_max)+" Speed RT: " + str(new_min)+" Linear v: " + str(linear_vel))
 
             elif mode == 1:
                 new_max = ((0.50 * max_speed)*butten_LT)/-2
-                new_min = ((0.50 * max_speed)*butten_RT)/2
-                linear_vel=new_max + new_min
+                linear_vel=new_max
                 #self.get_logger().info("Mode" + str(mode) + " Speed: " + str(new_max)+" Speed RT: " + str(new_min))
 
             elif mode == 3:
                 new_max = ((1.00 * max_speed)*butten_LT)/-2
-                new_min = ((1.00 * max_speed)*butten_RT)/2
-                linear_vel=new_max + new_min
+                linear_vel=new_max
                 #self.get_logger().info("Mode" + str(mode) + " Speed: " + str(new_max)+" Speed RT: " + str(new_min))
             
             elif mode == 4:
                 new_max = ((0.25 * max_speed)*butten_LT)/-2
-                new_min = ((0.25 * max_speed)*butten_RT)/2
-                linear_vel=new_max + new_min
+                linear_vel=new_max
                 #self.get_logger().info("Mode" + str(mode) + " Speed: " + str(new_max)+" Speed RT: " + str(new_min))
+            
+            
             if 0.0==abs(u) and abs(v)==0.0:
-                ang=0
-                ang_vel=0
-                linear_vel=0
-            if 0.0<=u<=1.0 and abs(v)==0.0:
+                self.get_logger().info("0 pos")
+                if ba==1:
+                    self.get_logger().info("ba pos")
+                    ang_vel=linear_vel
+                    linear_vel=0
+                else:
+                    self.get_logger().info("else pos")
+                    ang=0
+                    ang_vel=0
+                    linear_vel=0
+            
+            elif 0.0<=u<=1.0 and abs(v)==0.0:
+                self.get_logger().info("next")
                 ang=0
                 ang_vel=linear_vel
                 linear_vel=0
             elif 0.0<u<=1.0 and 0.0<v<=1.0:
                 ang=np.arctan(v/u)
-                ang_vel=linear_vel-(ang*linear_vel/(cmath.pi/2))
+                ang_vel=-(linear_vel-(ang*linear_vel/(cmath.pi/2)))
                 linear_vel=ang*linear_vel/(cmath.pi/2)
             elif 0.0<v<=1.0 and abs(u)==0.0:
                 ang=cmath.pi/2
@@ -133,21 +153,28 @@ class joy_listener(Node):
                 linear_vel=linear_vel
             elif -1.0<=u<-0.0 and 0.0<v<=1.0:
                 ang=np.arctan(v/u)+cmath.pi
-                ang_vel=-((ang*linear_vel/(cmath.pi/2))-linear_vel)
-                linear_vel=(-linear_vel+(ang*linear_vel/(cmath.pi/2)))
+                ang_vel=((ang*linear_vel/(cmath.pi/2))-linear_vel)
+                linear_vel=(linear_vel-((ang-cmath.pi/2)*linear_vel/(cmath.pi/2)))
             elif -1.0<=u<-0.0 and abs(v)==0.0:
                 ang=cmath.pi
                 ang_vel=-linear_vel
                 linear_vel=0
             elif -1.0<=u<-0.0 and -1.0<=v<-0.0:
                 ang=np.arctan(v/u)-cmath.pi
-            elif -1.0<=v<-0.0 and abs(u)==0.0:
+                ang_vel=-(linear_vel-(abs(ang)*linear_vel/(cmath.pi/2)))
+                linear_vel=-(linear_vel-(abs(ang+cmath.pi/2)*linear_vel/(cmath.pi/2)))
+            elif -1.0<=v<=0.0 and abs(u)==0.0:
                 ang=cmath.pi*(-1/2)
                 ang_vel=0
-            elif 0.0<u<=1.0 and -1.0<v<0.0:
+                linear_vel=-linear_vel
+            elif 0.0<=u<=1.0 and -1.0<=v<0.0:
                 ang=np.arctan(v/u)
-
-            self.get_logger().info("lin: " + str(linear_vel) + " ang: " + str(ang_vel))
+                linear_vel=-linear_vel
+                ang_vel=(abs(ang+cmath.pi/2)*linear_vel/(cmath.pi/2))
+                linear_vel=(linear_vel-(abs(ang+cmath.pi/2)*linear_vel/(cmath.pi/2)))
+            
+            
+            #self.get_logger().info("lin: " + str(linear_vel) + " ang: " + str(ang_vel)+ " ang: " + str(ang))
             """""
             if linear_vel!=0:
                 t=(ang)/linear_vel
@@ -166,9 +193,20 @@ class joy_listener(Node):
             
                 #foo.kinematicsCPU(linear_vel,ang_vel)
             """
-            #self.get_logger().info(str(foo.kinematicsCPU(linear_vel,ang_vel)))
+            
 
-    
+            self.get_logger().info("but a: "+str(button_A)+"ba: "+str(ba)+" but b: "+str(button_B)+" ba: "+str(bb))
+            self.get_logger().info("r: "+str(rad)+" ang: "+str(ang)+" lin vel: " +str(linear_vel)+" ang vel: " +str(ang_vel))
+            self.get_logger().info(str(foo.kinematicsCPU(linear_vel,ang_vel)))
+            if ang_vel != 0:
+                rad=(abs(linear_vel)/abs(ang_vel))*100
+            
+           
+
+
+      
+
+
             
     
 
