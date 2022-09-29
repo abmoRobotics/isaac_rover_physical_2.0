@@ -18,7 +18,15 @@ def generate_launch_description():
         namespace=namespace_,
         output='screen'
     )
+    zed_camera_node = Node(
+        package='remote_ctrl_interface',
+        executable='zed_camera_node',
+        name='Zed_camera_node',
+        namespace=namespace_,
+        output='screen'
+    )
 
     return LaunchDescription([
-        live_feed,
+        #live_feed,
+        zed_camera_node
     ])
