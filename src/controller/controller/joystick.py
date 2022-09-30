@@ -47,8 +47,8 @@ class joy_listener(Node):
         LR_stick = msg.axes[0] # Moving the robot left and right  
         UD_stick = msg.axes[1] # Moving the robot forward and backward  
 
-        #maximum working speed related to the maximum motor speed
-        LR_cross = msg.axes[6]  # Left = 0 to +/-50 % and right = 0 to +/-75%  
+        #Maximum working speed related to the maximum motor speed
+        LR_cross = msg.axes[6]  # Left = 0 to +/-50 % right = 0 to +/-75%  
         UP_cross = msg.axes[7]  # Down = 0 to +/-25% UP = 0 to +/-100%   
 
         button_A = msg.buttons[0] # Make the robot's wheels set to turn around itself
@@ -137,83 +137,68 @@ class joy_listener(Node):
                     ang=0
                     ang_vel=0
                     linear_vel=0
-            #Stick in the positive x axis
+
+            #Blocks free driving when it is in turning mode
+            elif ba==1 and 0.0!=abs(u) and abs(v)!=0.0:
+                ang=0
+                ang_vel=0
+                linear_vel=0
+
+            #Stick in the positive x axis, the robot will turn clockwise
             elif 0.0<=u<=1.0 and abs(v)==0.0:
                 ang=0
                 ang_vel=-linear_vel
                 linear_vel=0
             
-            #Stick in the first quadrant
+            #Stick in the first quadrant, moves forward and turns clockwise
             elif 0.0<u<=1.0 and 0.0<v<=1.0:
                 ang=np.arctan(v/u)
                 ang_vel=-(linear_vel-(ang*linear_vel/(cmath.pi/2)))
                 linear_vel=ang*linear_vel/(cmath.pi/2)
+            
+            #Stick in the positive y axis, moves forward
             elif 0.0<v<=1.0 and abs(u)==0.0:
                 ang=cmath.pi/2
                 ang_vel=0
                 linear_vel=linear_vel
+            
+            #Stick in the second quadrant, moves forward and turns anticlockwise
             elif -1.0<=u<-0.0 and 0.0<v<=1.0:
                 ang=np.arctan(v/u)+cmath.pi
                 ang_vel=((ang*linear_vel/(cmath.pi/2))-linear_vel)
                 linear_vel=(linear_vel-((ang-cmath.pi/2)*linear_vel/(cmath.pi/2)))
+            
+            #Stick in the negative x axis, turns anticlockwise
             elif -1.0<=u<-0.0 and abs(v)==0.0:
                 ang=cmath.pi
                 ang_vel=linear_vel
                 linear_vel=0
+            
+            #Stick in the third quadrant, moves backward and turns anticlockwise
             elif -1.0<=u<-0.0 and -1.0<=v<-0.0:
                 ang=np.arctan(v/u)-cmath.pi
                 ang_vel=-(linear_vel-(abs(ang)*linear_vel/(cmath.pi/2)))
                 linear_vel=-(linear_vel-(abs(ang+cmath.pi/2)*linear_vel/(cmath.pi/2)))
+            
+            #Stick in the negative y axis, moves backforward
             elif -1.0<=v<=0.0 and abs(u)==0.0:
                 ang=cmath.pi*(-1/2)
                 ang_vel=0
                 linear_vel=-linear_vel
+            
+            #Stick in the fourth quadrant, moves backward and turns clockwise
             elif 0.0<=u<=1.0 and -1.0<=v<0.0:
                 ang=np.arctan(v/u)
                 linear_vel=-linear_vel
                 ang_vel=(abs(ang+cmath.pi/2)*linear_vel/(cmath.pi/2))
                 linear_vel=(linear_vel-(abs(ang+cmath.pi/2)*linear_vel/(cmath.pi/2)))
             
-            
+            #Data visualization
             #self.get_logger().info("lin: " + str(linear_vel) + " ang: " + str(ang_vel)+ " ang: " + str(ang))
-            """""
-            if linear_vel!=0:
-                t=(ang)/linear_vel
-
-            if t!=0:
-                ang_vel=ang/t
-                self.get_logger().info("lin: " + str(linear_vel) + " ang: " + str(ang_vel)) 
-            """"""
-
-            """""""
-            if r!=0:
-                ang_vel=linear_vel/r
-            else:
-                ang_vel=0
-                #self.get_logger().info("lin: " + str(linear_vel) + " ang: " + str(ang_vel)) 
-            
-                #foo.kinematicsCPU(linear_vel,ang_vel)
-            """
-            
-
             #self.get_logger().info("but a: "+str(button_A)+"ba: "+str(ba)+" but b: "+str(button_B))
             #self.get_logger().info("r: "+str(rad)+" ang: "+str(ang)+" lin vel: " +str(linear_vel)+" ang vel: " +str(ang_vel))
             self.get_logger().info(str(foo.kinematicsCPU(linear_vel,ang_vel)))
            
-            
-           
-
-
-      
-
-
-            
-    
-
-        
-        #st_angle, mo_speed = scripts.kinematicsCPU(LR_stick, butten_LT)
-
-        #self.get_logger().info("Steering angle: " + str(st_angle) + "Motor speed: " + str(mo_speed))
 
 
 def main(args=None):
