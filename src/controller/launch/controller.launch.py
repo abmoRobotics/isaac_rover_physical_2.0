@@ -35,5 +35,13 @@ def generate_launch_description():
             namespace='joy_listener',
             executable='joy_listener',
             name='joy_listener'
+        ),
+        
+        Node(
+           package='controller',
+           namespace='motor_subscriber',
+           executable='motor_subscriber',
+           name='motor_subscriber'
         )
+        
     ])

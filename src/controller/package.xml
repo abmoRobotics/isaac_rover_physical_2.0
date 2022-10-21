@@ -18,6 +18,7 @@
   <exec_depend>rclpy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>rover_msgs</exec_depend> 
   <!-- <exec_depend>canopen_interfaces</exec_depend>
   <exec_depend>canopen_core</exec_depend>
   <exec_depend>canopen_base_driver</exec_depend>

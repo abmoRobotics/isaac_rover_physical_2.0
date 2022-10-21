@@ -25,7 +25,8 @@ setup(
         'console_scripts': [
             #'motor_node = controller.motor_node:main',
             #'Kinematics_node = controller.Kinematics_node:main',
-            'joy_listener = controller.joystick:main'
+            'joy_listener = controller.joystick:main',
+            'motor_subscriber = controller.motor:main'
         ],
     },
 )

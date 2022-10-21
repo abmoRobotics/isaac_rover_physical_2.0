@@ -1,20 +1,13 @@
 #!/usr/bin/env python
-from typing_extensions import Self
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import CompressedImage
 import numpy as np
-import time
-import sys
-import message_filters
-sys.path.append('/home/xavier/isaac_rover_physical/exomy/scripts/utils')
-sys.path.append('/home/xavier/ros2_numpy')
-import ros2_numpy
-#from CameraSys import Cameras
-import torch
 from cv_bridge import CvBridge
 import cv2
 from rover_msgs.msg import GoalPoint2d
+import socket
+import base64
 
 
 goal_selected = False
@@ -33,56 +26,75 @@ class Live_feed_node(Node):
                 GoalPoint2d,
                 'GoalPoint2d',
                 1)
-
-        self.cam1Sub = message_filters.Subscriber(self, Image, "/cam_1/color/image_raw")
-        self.cam2Sub = message_filters.Subscriber(self, Image, "/cam_2/color/image_raw")
-
-        queue_size = 1
-        self.ts = message_filters.ApproximateTimeSynchronizer([self.cam1Sub, self.cam2Sub], queue_size, 0.8)
-        self.ts.registerCallback(self.callback)
-
-
-        """Init Camera."""
-        #self.camera = Cameras()
-        
+        self.IP = '169.254.148.155'
+        self.PORT = 8080
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.bind((self.IP, self.PORT))
+        self.socket.listen(1)
+        self.conn, self.addr = self.socket.accept()
+        self.img_width = -1
+        self.img_height = -1        
         self.get_logger().info('\t{} STARTED.'.format(self.node_name.upper()))
+
+
+    def recvall(self, sock, count):
+        # http://stupidpythonideas.blogspot.com/2013/05/sockets-are-byte-streams-not-message.html
+        buf = b''
+        while count:
+            newbuf = sock.recv(count)
+            if not newbuf: return None
+            buf += newbuf
+            count -= len(newbuf)
+        return buf
+
+    def rec_images(self):
+        while True:
+            length = self.recvall(self.conn, 64)
+            length_dec = length.decode('utf-8')
+            stringData = self.recvall(self.conn, int(length_dec))
+            data = np.frombuffer(base64.b64decode(stringData), np.uint8)
+            decimg = cv2.imdecode(data, 1)
+            self.show_img(decimg)
+
       
         
-       
-
-    def callback(self, data_cam1, data_cam2):
+    def show_img(self, recived_img):
         global goal_selected, goal_x, goal_y
-        self.get_logger().info('\t{} MESSAGE RECIVED.'.format(self.node_name.upper()))
         try:
-            bridge = CvBridge()
-            frame = bridge.imgmsg_to_cv2(data_cam1, desired_encoding='passthrough')
+            self.img_width = recived_img.shape[1]
+            self.img_height = recived_img.shape[0]
+            cv2.namedWindow("Live feed")
+            cv2.setMouseCallback("Live feed", self.mouse_callback)
+            cv2.imshow("Live feed", recived_img)
+            cv2.waitKey(1)
             if(goal_selected):
-                frame = cv2.circle(frame, (goal_x, goal_y), radius=2, color=(0, 0, 255), thickness=-1)
-                cv2.imshow('Live feed', frame)
+                frame = cv2.circle(recived_img, (goal_x, goal_y), radius=10, color=(255, 255, 255), thickness=-1)
+                cv2.imshow('Live feed', recived_img)
                 cv2.setMouseCallback("Live feed", self.mouse_callback)
             
-
         except Exception as e: 
            self.get_logger().info('\tERROR: {}'.format(e))
 
     
-    def mouse_callback(event, x, y, flags, param):
+    def mouse_callback(self, event, x, y, flags, param):
         global goal_selected, goal_x, goal_y
-        if event == cv2.EVENT_LBUTTONDOWN:
+        if event == cv2.EVENT_LBUTTONUP:
             goal_selected = True
             goal_x = x
             goal_y = y
-            print("Clicked: x = " + str(x) + " | y = " + str(y))
             msg = GoalPoint2d()
-            msg.x_pos = goal_x
-            msg.y_pos = goal_y
-            #self.pub.publish(msg)
+            # normalize
+            msg.x = goal_x/self.img_width
+            msg.y = goal_y/self.img_height
+            
+            self.pub.publish(msg)
 
 def main(args=None):
     rclpy.init(args=args)
 
     try:
         live_feed = Live_feed_node()
+        live_feed.rec_images()
         try:
             rclpy.spin(live_feed)
         finally:

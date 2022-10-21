@@ -1,2 +1,3 @@
-float64[] motor_velocities
-float64[] steering_angles
+float64 motor_linear_vel
+float64 motor_angular_vel
+int8 mode

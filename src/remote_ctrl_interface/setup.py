@@ -24,6 +24,7 @@ setup(
     entry_points={
         'console_scripts': [
             'live_feed = remote_ctrl_interface.live_feed:main',
+            'zed_camera_node = remote_ctrl_interface.zed_camera_node:main',
         ],
     },
 )

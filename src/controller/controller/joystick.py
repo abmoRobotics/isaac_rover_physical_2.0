@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
+from imaplib import Commands
 from pickle import FALSE
 from unittest import case
 import rclpy
 from rclpy.node import Node
 import sys
 from sensor_msgs.msg import Joy
+from rover_msgs.msg import MotorCommands
 import numpy as np
 import math
 import cmath
@@ -28,7 +30,10 @@ new_min=0
 linear_vel=0
 ang=0
 ang_vel=0
+rot_speed=0
+#Joystick is the publisher (sends velocities)Motor node is the subscriber.
 
+#When the joystick has 0 lin_vel and 0 ang_vel the robot will turn the wheels to the initial position
 
 class joy_listener(Node):
 
@@ -37,7 +42,21 @@ class joy_listener(Node):
     def __init__(self):
         super().__init__('joy_listener')
         self.subscription = self.create_subscription(Joy, '/joy/joy', self.listener_callback,1000)
+    
+        self.publisher_ = self.create_publisher(MotorCommands, '/joy_listener/joystic_publisher', 1000)
+        timer_period = 0.1  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+        self.lin_vel = 0.0
+        self.ang_vel = 0.0
+        self.mode = 1
 
+    def timer_callback(self):
+        msg = MotorCommands()
+        msg.motor_linear_vel = self.lin_vel
+        msg.motor_angular_vel = self.ang_vel
+        msg.mode = self.mode
+        self.publisher_.publish(msg)
+        #self.get_logger().info('Publishing: "%s"' % str(msg.motor_linear_vel) + str(msg.motor_angular_vel) )
 
     def listener_callback(self, msg):
         global autom,mode,ang,linear_vel,ang_vel,rad,ba,new_max,new_min,rot_speed
@@ -61,12 +80,14 @@ class joy_listener(Node):
                                     #In turning mode, makes the robot rotate clockwise
         butten_RT = msg.axes[5]-1 # Only available in turning mode, rotating anticlockwise
 
+
         #Control the manual and automatic mode
         if button_Y==1:
             autom=0
         elif button_X==1:
             autom=1
-
+        self.mode = int(autom)
+        #self.get_logger().info("mode: " + str(autom))
         #Control the maximum speed mode
         if LR_cross == -1.0 :
             mode=1
@@ -197,22 +218,24 @@ class joy_listener(Node):
             #self.get_logger().info("lin: " + str(linear_vel) + " ang: " + str(ang_vel)+ " ang: " + str(ang))
             #self.get_logger().info("but a: "+str(button_A)+"ba: "+str(ba)+" but b: "+str(button_B))
             #self.get_logger().info("r: "+str(rad)+" ang: "+str(ang)+" lin vel: " +str(linear_vel)+" ang vel: " +str(ang_vel))
-            self.get_logger().info(str(foo.kinematicsCPU(linear_vel,ang_vel)))
-           
+            #self.get_logger().info(str(foo.kinematicsCPU(linear_vel,ang_vel)))
+            self.lin_vel = float(linear_vel)
+            self.ang_vel = float(ang_vel)
+        
 
 
 def main(args=None):
     rclpy.init(args=args)
 
-    joy_listener1 = joy_listener()
+    joy_lis = joy_listener()
 
-    joy_listener1
-    rclpy.spin(joy_listener1)
+    joy_lis
+    rclpy.spin(joy_lis)
 
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically
     # when the garbage collector destroys the node object)
-    joy_listener1.destroy_node()
+    joy_lis.destroy_node()
     rclpy.shutdown()
 
 
