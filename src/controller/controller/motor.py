@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from re import I
 import Jetson.GPIO as GPIO 
 import canopen 
 from canopen import *
@@ -31,31 +32,40 @@ class motor_subscriber(Node):
         ###########################
         # Setup motor controllers #
         ###########################
+        self.node = {'FL':1, 'FR':2, 'CL':3, 'CR':4, 'RL':5, 'RR':6, 'FL_EN':7, 'FR_EN':8, 'RL_EN':9, 'RR_EN':10}
+        eds_path = 'src/controller/config/C5-E-2-09.eds'
+        self.mode_oper = self.target_vl = self.mode_disp = self.status = self.control = self. DeltaSpeed = self.DeltaTime = {}
 
-        node = network.add_node(1, 'src/controller/config/C5-E-2-09.eds')
-        self.mode_oper= node.sdo['Modes of operation']
-        self.target_vl = node.sdo['vl target velocity']
-        self.mode_disp = node.sdo['Modes of operation display']
-        self.status = node.sdo['Statusword']
-        self.control = node.sdo['Controlword']
-        self.DeltaSpeed = node.sdo['vl velocity acceleration']['DeltaSpeed'] 
-        self.DeltaTime = node.sdo['vl velocity acceleration']['DeltaTime']
+        for ID in self.node:
+            self.get_logger().info(str(ID) + ' :' + str(self.node[ID]) )
+            self.node[ID] = network.add_node(self.node[ID], eds_path)
+            self.get_logger().info(str(self.node[ID]) )
+            self.mode_oper[ID]  =    self.node[ID].sdo['Modes of operation']
+            self.target_vl[ID]  =    self.node[ID].sdo['vl target velocity']
+            self.mode_disp[ID]  =    self.node[ID].sdo['Modes of operation display']
+            self.status[ID]     =    self.node[ID].sdo['Statusword']
+            self.control[ID]    =    self.node[ID].sdo['Controlword']
+            self.DeltaSpeed[ID] =    self.node[ID].sdo['vl velocity acceleration']['DeltaSpeed'] 
+            self.DeltaTime[ID]  =    self.node[ID].sdo['vl velocity acceleration']['DeltaTime']
 
         # initilize the mode to velocity(2)
-        self.mode_oper.phys = 2
-        
+        self.mode_oper['FL'].phys = 0x02
+        self.get_logger().info(str(self.mode_disp['FL'].phys))
+
         # Setting the acc
-        self.DeltaSpeed.phys = 2000
-        self.DeltaTime.phys = 10
+        self.DeltaSpeed['FL'].phys = 2000
+        self.DeltaTime['FL'].phys = 10
 
         # Initilize the motors
-        if self.mode_disp.phys == 0x0002:
-                self.target_vl.phys = 0
-                self.control.phys = 0x0006
-                if self.status.bits[0] == 1 and self.status.bits[5] == 1 and self.status.bits[9] == 1: 
-                    self.control.phys = 0x0007
-                    if self.status.bits[0] == 1 and self.status.bits[1] == 1 and self.status.bits[4] == 1 and self.status.bits[5] == 1 and self.status.bits[9] == 1:
-                        self.control.phys = 0x000F
+        if self.mode_disp['FL'].phys == 2:
+                self.target_vl['FL'].phys = 0
+                self.control['FL'].phys = 0x0006
+                self.get_logger().info('I am here: 1')
+                if self.status['FL'].bits[0] == 1 and self.status['FL'].bits[5] == 1 and self.status['FL'].bits[9] == 1: 
+                    self.control['FL'].phys = 0x0007
+                    self.get_logger().info('I am here: 2')
+                    if self.status['FL'].bits[0] == 1 and self.status['FL'].bits[1] == 1 and self.status['FL'].bits[4] == 1 and self.status['FL'].bits[5] == 1 and self.status['FL'].bits[9] == 1:
+                        self.control['FL'].phys = 0x000F
                     else:
                         self.get_logger().info('I did not do it')
 
@@ -72,7 +82,7 @@ class motor_subscriber(Node):
         self.get_logger().info('Publishing: "%s"' % str(msg.motor_linear_vel) + ' Ang: ' + str(msg.motor_angular_vel)+ ' Mode: ' +str(msg.mode))
         
         
-        self.target_vl.phys = msg.motor_linear_vel * 2000
+        self.target_vl['FL'].phys = msg.motor_linear_vel * 2000
 
         
 
