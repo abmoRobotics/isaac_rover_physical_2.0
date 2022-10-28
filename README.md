@@ -3,6 +3,7 @@
 ## Table of content
 [Old repository](#old-repository)<br/>
 [Joystick control](#Joystick-control)<br/>
+[Documentation](#documentation)<br/>
 
 
 
@@ -20,8 +21,13 @@ Note: The cross can be clicked at any time to change the maximum speed.
 4. To make the robot rotate on itself click A. Use LT to turn clockwise and RT to turn anticlockwise. Do not move the left stick.
 5. To disable turning mode click B.
 6. To enable automatic robot drive click X.
+7. Prees LB to power off the motors.
 
 ## Terminal commands
-´´´bash
- docker exec -it distracted_ride bash
-´´´
+Use the docker to build the entire images of ros and the dependencies, run:
+```bash
+docker exec -it distracted_ride bash
+```
+
+## Documentation 
+Motor controllers: [link](https://en.nanotec.com/products/1768-c5-e-2-09-motor-controller-drive-for-canopen-or-usb)

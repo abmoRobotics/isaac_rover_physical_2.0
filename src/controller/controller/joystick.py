@@ -1,36 +1,34 @@
 #!/usr/bin/env python3
 from imaplib import Commands
 from pickle import FALSE
-from unittest import case
 import rclpy
 from rclpy.node import Node
-import sys
 from sensor_msgs.msg import Joy
 from rover_msgs.msg import MotorCommands
 import numpy as np
-import math
+#import math
 import cmath
 import importlib.util
 
 #It makes possible to see the angles and velocities in each robot wheel
-spec=importlib.util.spec_from_file_location("kinematicsCPU","/home/xavier/Documents/isaac_rover_physical_2.0/src/controller/scripts/kinematicsCPU.py")
+spec=importlib.util.spec_from_file_location("kinematicsCPU","/home/orin/Documents/isaac_rover_physical_2.0/src/controller/scripts/kinematicsCPU.py")
 foo=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(foo)
 
 #setup variables
 
 max_speed = 1
-global mode, autom,rad,ba,new_max,new_min,linear_vel,ang,ang_vel
-mode=0
-autom=1
-rad=0
-ba=0
-new_max = 0
-new_min=0
-linear_vel=0
-ang=0
-ang_vel=0
-rot_speed=0
+global mode, autom, rad, ba,new_max,new_min,linear_vel,ang,ang_vel
+mode        =   0
+autom       =   1
+rad         =   0
+ba          =   0
+new_max     =   0
+new_min     =   0
+linear_vel  =   0
+ang         =   0
+ang_vel     =   0
+rot_speed   =   0
 #Joystick is the publisher (sends velocities)Motor node is the subscriber.
 
 #When the joystick has 0 lin_vel and 0 ang_vel the robot will turn the wheels to the initial position
@@ -49,12 +47,14 @@ class joy_listener(Node):
         self.lin_vel = 0.0
         self.ang_vel = 0.0
         self.mode = 1
+        self.power_off = 0 
 
     def timer_callback(self):
         msg = MotorCommands()
         msg.motor_linear_vel = self.lin_vel
         msg.motor_angular_vel = self.ang_vel
         msg.mode = self.mode
+        msg.power_off = self.power_off
         self.publisher_.publish(msg)
         #self.get_logger().info('Publishing: "%s"' % str(msg.motor_linear_vel) + str(msg.motor_angular_vel) )
 
@@ -76,6 +76,8 @@ class joy_listener(Node):
         button_Y = msg.buttons[3] # Breaks the automatic mode
         button_X = msg.buttons[2] # Starts the automatic mode
 
+        button_LB = msg.buttons[4] #It powers off the motors
+        button_RB = msg.buttons[5]
         butten_LT = msg.axes[2] - 1 # Increse or decrese the speed of the robot to move either forward or backward
                                     #In turning mode, makes the robot rotate clockwise
         butten_RT = msg.axes[5]-1 # Only available in turning mode, rotating anticlockwise
@@ -87,8 +89,13 @@ class joy_listener(Node):
         elif button_X==1:
             autom=1
         self.mode = int(autom)
-        #self.get_logger().info("mode: " + str(autom))
+    
         #Control the maximum speed mode
+
+        if button_LB ==1:
+            self.power_off = int(1)
+            #self.get_logger().info("power: " + str(self.power_off)) 
+
         if LR_cross == -1.0 :
             mode=1
 
@@ -113,9 +120,9 @@ class joy_listener(Node):
         v=UD_stick
         
         #Transformation to square plane coordinates (not in use)
-        x=1/2*math.sqrt(abs(2+math.pow(u,2)-math.pow(v,2)+2*u*math.sqrt(2)))-1/2*math.sqrt(abs(2+math.pow(u,2)-math.pow(v,2)-2*u*math.sqrt(2)))
+        #x=1/2*math.sqrt(abs(2+math.pow(u,2)-math.pow(v,2)+2*u*math.sqrt(2)))-1/2*math.sqrt(abs(2+math.pow(u,2)-math.pow(v,2)-2*u*math.sqrt(2)))
 
-        y=1/2*math.sqrt(abs(2-math.pow(u,2)+math.pow(v,2)+2*v*math.sqrt(2)))-1/2*math.sqrt(abs(2-math.pow(u,2)+math.pow(v,2)-2*v*math.sqrt(2)))
+        #y=1/2*math.sqrt(abs(2-math.pow(u,2)+math.pow(v,2)+2*v*math.sqrt(2)))-1/2*math.sqrt(abs(2-math.pow(u,2)+math.pow(v,2)-2*v*math.sqrt(2)))
         
 
         #Drive the robot with the joystick
