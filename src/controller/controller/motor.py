@@ -37,6 +37,7 @@ class motor_subscriber(Node):
         FL, FR, CL, CR, RL, RR, FL_ang, FR_ang, RL_ang, RR_ang = range(0,10) # Define the ID's
         ID_pos = [FL_ang, FR_ang, RL_ang, RR_ang]
         ID_vel = [FL, FR, CL]
+        ID = ID_vel
 
         self.get_logger().info(str(ID))
         self.mode_oper  =   []
@@ -48,9 +49,9 @@ class motor_subscriber(Node):
 
         self.target_pos =   []
 
-        scripts.autosetup(ID_vel)
+        scripts.autosetup(ID)
 
-        for id in ID_vel:
+        for id in ID:
             
             self.node = network.add_node(id+1, eds_path)
             self.get_logger().info('NodeID: ' + str(id +1) )
@@ -133,11 +134,11 @@ class motor_subscriber(Node):
         #self.target_pos[RR_ang].phys = steering_angles[RR]
 
         self.target_vl[FL].phys = (motor_velocities[FL] * 9.549297) 
-        self.target_vl[FR].phys = (motor_velocities[FR] * 9.549297)
+        self.target_vl[FR].phys = (-motor_velocities[FR] * 9.549297)
         self.target_vl[CL].phys = (motor_velocities[CL] * 9.549297)
-        # self.target_vl[CR].phys = (motor_velocities[CR] * 9.549297) 
+        # self.target_vl[CR].phys = (-motor_velocities[CR] * 9.549297) 
         # self.target_vl[RL].phys = (motor_velocities[RL] * 9.549297) 
-        # self.target_vl[RR].phys = (motor_velocities[RR] * 9.549297) 
+        # self.target_vl[RR].phys = (-motor_velocities[RR] * 9.549297) 
         
         if msg.power_off == 1:
             self.control[FL].phys = 0

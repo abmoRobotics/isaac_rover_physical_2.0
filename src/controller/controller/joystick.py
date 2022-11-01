@@ -11,9 +11,9 @@ import cmath
 import importlib.util
 
 #It makes possible to see the angles and velocities in each robot wheel
-spec=importlib.util.spec_from_file_location("kinematicsCPU","/home/orin/Documents/isaac_rover_physical_2.0/src/controller/scripts/kinematicsCPU.py")
-foo=importlib.util.module_from_spec(spec)
-spec.loader.exec_module(foo)
+#spec=importlib.util.spec_from_file_location("kinematicsCPU","/home/orin/Documents/isaac_rover_physical_2.0/src/controller/scripts/kinematicsCPU.py")
+#foo=importlib.util.module_from_spec(spec)
+#spec.loader.exec_module(foo)
 
 #setup variables
 
