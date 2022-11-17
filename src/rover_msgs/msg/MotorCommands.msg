@@ -2,3 +2,4 @@ float64 motor_linear_vel
 float64 motor_angular_vel
 int8 power_off
 int8 mode
+int8 turn_around

@@ -18,11 +18,11 @@ import importlib.util
 #setup variables
 
 max_speed = 1
-global mode, autom, rad, ba,new_max,new_min,linear_vel,ang,ang_vel
-mode        =   0
-autom       =   1
+global mode, autom, rad,new_max,new_min,linear_vel,ang,ang_vel, turn_around
+mode        =   4 # Default it is set to 0.25 percentage speed mode.
+autom       =   1 
 rad         =   0
-ba          =   0
+turn_around =   0
 new_max     =   0
 new_min     =   0
 linear_vel  =   0
@@ -48,6 +48,7 @@ class joy_listener(Node):
         self.ang_vel = 0.0
         self.mode = 1
         self.power_off = 0 
+        self.turn_around = 0
 
     def timer_callback(self):
         msg = MotorCommands()
@@ -55,11 +56,12 @@ class joy_listener(Node):
         msg.motor_angular_vel = self.ang_vel
         msg.mode = self.mode
         msg.power_off = self.power_off
+        msg.turn_around = self.turn_around
         self.publisher_.publish(msg)
         #self.get_logger().info('Publishing: "%s"' % str(msg.motor_linear_vel) + str(msg.motor_angular_vel) )
 
     def listener_callback(self, msg):
-        global autom,mode,ang,linear_vel,ang_vel,rad,ba,new_max,new_min,rot_speed
+        global autom,mode,ang,linear_vel,ang_vel,rad,new_max,new_min,rot_speed
 
         #IMPORTANT: mode button changes the joystick's mapping. Make sure the little led next to it is off 
 
@@ -76,8 +78,9 @@ class joy_listener(Node):
         button_Y = msg.buttons[3] # Breaks the automatic mode
         button_X = msg.buttons[2] # Starts the automatic mode
 
-        button_LB = msg.buttons[4] #It powers off the motors
+        button_LB = msg.buttons[4] # It powers off the motors
         button_RB = msg.buttons[5]
+        
         butten_LT = msg.axes[2] - 1 # Increse or decrese the speed of the robot to move either forward or backward
                                     #In turning mode, makes the robot rotate clockwise
         butten_RT = msg.axes[5]-1 # Only available in turning mode, rotating anticlockwise
@@ -110,9 +113,9 @@ class joy_listener(Node):
 
         #Control the driving mode
         elif button_A==1:
-            ba=1
+            self.turn_around=1
         elif button_B==1:
-            ba=0    
+            self.turn_around=0    
 
 
         #Coordinates in the joystick
@@ -130,26 +133,26 @@ class joy_listener(Node):
         if autom==0:
             
             if mode == 2:
-                new_max = ((0.75 * max_speed)*butten_LT)/-2
-                new_min = ((0.75 * max_speed)*butten_RT)/-2
+                new_max = ((0.75 * max_speed)*butten_RT)/-2
+                new_min = ((0.75 * max_speed)*butten_LT)/-2
                 linear_vel=new_max
                 rot_speed=new_max-new_min
 
             elif mode == 1:
-                new_max = ((0.50 * max_speed)*butten_LT)/-2
-                new_min = ((0.50 * max_speed)*butten_RT)/-2
+                new_max = ((0.50 * max_speed)*butten_RT)/-2
+                new_min = ((0.50 * max_speed)*butten_LT)/-2
                 linear_vel=new_max
                 rot_speed=new_max-new_min
 
             elif mode == 3:
-                new_max = ((1.00 * max_speed)*butten_LT)/-2
-                new_min = ((1.00 * max_speed)*butten_RT)/-2
+                new_max = ((1.00 * max_speed)*butten_RT)/-2
+                new_min = ((1.00 * max_speed)*butten_LT)/-2
                 linear_vel=new_max
                 rot_speed=new_max-new_min
             
             elif mode == 4:
-                new_max = ((0.25 * max_speed)*butten_LT)/-2
-                new_min = ((0.25 * max_speed)*butten_RT)/-2
+                new_max = ((0.25 * max_speed)*butten_RT)/-2
+                new_min = ((0.25 * max_speed)*butten_LT)/-2
                 linear_vel=new_max
                 rot_speed=new_max-new_min
                
@@ -158,7 +161,7 @@ class joy_listener(Node):
             if 0.0==abs(u) and abs(v)==0.0:
 
                 #pressing LT rotates clockwise, pressing RT rotates anticlockwise
-                if ba==1:
+                if self.turn_around==1:
                     ang_vel=-rot_speed
                     linear_vel=0
                 else:
@@ -167,7 +170,7 @@ class joy_listener(Node):
                     linear_vel=0
 
             #Blocks free driving when it is in turning mode
-            elif ba==1 and 0.0!=abs(u) and abs(v)!=0.0:
+            elif self.turn_around==1 and 0.0!=abs(u) and abs(v)!=0.0:
                 ang=0
                 ang_vel=0
                 linear_vel=0

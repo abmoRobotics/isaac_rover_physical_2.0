@@ -9,7 +9,7 @@ from canopen import *
 from rclpy.node import Node
 
 from rover_msgs.msg import MotorCommands
-import scripts
+import controller_utils
 
 
 class motor_subscriber(Node):
@@ -35,9 +35,7 @@ class motor_subscriber(Node):
         eds_path = 'src/controller/config/C5-E-2-09.eds'
         global FL, FR, CL, CR, RL, RR, FL_ang, FR_ang, RL_ang, RR_ang
         FL, FR, CL, CR, RL, RR, FL_ang, FR_ang, RL_ang, RR_ang = range(0,10) # Define the ID's
-        ID_pos = [FL_ang, FR_ang, RL_ang, RR_ang]
-        ID_vel = [FL, FR, CL]
-        ID = ID_vel
+        ID = [FL, FR, CL, CR, RL, RR, FL_ang, FR_ang, RL_ang, RR_ang]
 
         self.get_logger().info(str(ID))
         self.mode_oper  =   []
@@ -46,15 +44,14 @@ class motor_subscriber(Node):
         self.status     =   []
         self.control    =   []
         self.actual_vl  =   [] 
-
         self.target_pos =   []
 
-        scripts.autosetup(ID)
+        controller_utils.autosetup(ID)   # Auto-setup for the motors so they all have the same
 
         for id in ID:
             
             self.node = network.add_node(id+1, eds_path)
-            self.get_logger().info('NodeID: ' + str(id +1) )
+            self.get_logger().info('NodeID: ' + str(id + 1) )
 
             self.mode_oper.append(self.node.sdo['Modes of operation'])
             self.target_vl.append(self.node.sdo['vl target velocity'])
@@ -76,9 +73,26 @@ class motor_subscriber(Node):
             self.node.sdo[0x604C][0x01].phys  = 60      # Vl Dimension Factor Numerator
             self.node.sdo[0x604C][0x02].phys  = 1       # Vl Dimension Factor Denominato
 
+
+
+
+
+
+
             if id >= 7 :
                 # initilize the mode to Profile Position
-                self.mode_oper[id].phys = 0x01
+                self.mode_oper[id].phys = 6
+
+                if self.mode_disp[id].phys == 6:
+                    if self.status[id].bits[13] == 0 and self.status[id].bits[12] == 0 and self.status[id].bits[10] == 0:
+                        self.get_logger().info('Homeing is performed on NodeID' + str(id + 1))
+
+                        
+                        if self.status[id].bits[13] == 0 and self.status[id].bits[12] == 1 and self.status[id].bits[10] == 1:
+                            self.get_logger().info('Homeing completed on NodeID' + str(id + 1))
+
+
+            self.mode_oper[id].phys = 0x01
 
                 #self.node.sdo[0x6083].phys # Desired starting acceleration
                 #self.node.sdo[0x6083].phys # Desired braking deceleration
@@ -88,26 +102,24 @@ class motor_subscriber(Node):
                     self.target_pos[id].phys = 0
 
 
-            else:        
+            elif id < 7:        
                 # initilize the mode to velocity
                 self.mode_oper[id].phys = 0x02
 
                 # Setting the acceleration
                 self.node.sdo['vl velocity acceleration']['DeltaSpeed'].phys = 3500
-                self.node.sdo['vl velocity acceleration']['DeltaTime'].phys = 350
+                self.node.sdo['vl velocity acceleration']['DeltaTime'].phys = 250
 
                 # Setting the deceleration
                 self.node.sdo[0x6049][0x01].phys = 3500
-                self.node.sdo[0x6049][0x02].phys = 350
+                self.node.sdo[0x6049][0x02].phys = 100
 
                 # Initilize the velocity motors
                 if self.mode_disp[id].phys == 2:
                         self.target_vl[id].phys = 0
                         self.control[id].phys = 0x0006
-                        self.get_logger().info('I am here: 1')
                         if self.status[id].bits[0] == 1 and self.status[id].bits[5] == 1 and self.status[id].bits[9] == 1: 
                             self.control[id].phys = 0x0007
-                            self.get_logger().info('I am here: 2')
                             if self.status[id].bits[0] == 1 and self.status[id].bits[1] == 1 and self.status[id].bits[4] == 1 and self.status[id].bits[5] == 1 and self.status[id].bits[9] == 1:
                                 self.control[id].phys = 0x000F
                             else:
@@ -126,8 +138,8 @@ class motor_subscriber(Node):
         
         self.get_logger().info(' Node3: "%s"' % str(self.actual_vl[CL].phys) + 'Node1 "%s"' % str(self.actual_vl[FL].phys) + ' Node2: "%s"' % str(self.actual_vl[FR].phys))
         
-        steering_angles, motor_velocities = scripts.Ackermann(msg.motor_linear_vel, msg.motor_angular_vel, device='cpu')
-        #self.get_logger().info(' Angle: "%s"' % str(steering_angles) + 'Velocity "%s"' % str(motor_velocities))
+        steering_angles, motor_velocities = controller_utils.Ackermann(msg.motor_linear_vel, msg.motor_angular_vel, device='cpu')
+        #self.get_logger().info(' Vel controller: "%s"' % str(msg.motor_linear_vel) + 'Velocity "%s"' % str(motor_velocities))
         #self.target_pos[FL_ang].phys = steering_angles[FL]
         #self.target_pos[FR_ang].phys = steering_angles[FR]
         #self.target_pos[RL_ang].phys = steering_angles[RL]
@@ -136,18 +148,27 @@ class motor_subscriber(Node):
         self.target_vl[FL].phys = (motor_velocities[FL] * 9.549297) 
         self.target_vl[FR].phys = (-motor_velocities[FR] * 9.549297)
         self.target_vl[CL].phys = (motor_velocities[CL] * 9.549297)
-        # self.target_vl[CR].phys = (-motor_velocities[CR] * 9.549297) 
-        # self.target_vl[RL].phys = (motor_velocities[RL] * 9.549297) 
-        # self.target_vl[RR].phys = (-motor_velocities[RR] * 9.549297) 
+        self.target_vl[CR].phys = (-motor_velocities[CR] * 9.549297) 
+        self.target_vl[RL].phys = (motor_velocities[RL] * 9.549297) 
+        self.target_vl[RR].phys = (-motor_velocities[RR] * 9.549297) 
         
         if msg.power_off == 1:
             self.control[FL].phys = 0
             self.control[FR].phys = 0  
-            self.control[CL].phys = 0  
+            self.control[CL].phys = 0 
+            self.control[CR].phys = 0
+            self.control[RL].phys = 0 
+            self.control[RR].phys = 0  
             self.node.sdo[0x1011][0x05].phys = 0x64616F6C # Restart the drive 
             os.kill(os.getppid(), signal.CTRL_C_EVENT)
             self.destroy_node()
             rclpy.shutdown()
+        
+        elif msg.turn_around == 1:
+            #self.target_pos[FL_ang].phys = steering_angles[FL]
+            #self.target_pos[FR_ang].phys = steering_angles[FR]
+            #self.target_pos[RL_ang].phys = steering_angles[RL]
+            #self.target_pos[RR_ang].phys = steering_angles[RR]
         
 
 def main(args=None):

@@ -3,7 +3,7 @@ import os
 from glob import glob
 
 package_name = 'controller'
-sub_module = 'scripts'
+sub_module = 'controller_utils'
 setup(
     name=package_name,
     version='0.0.0',
