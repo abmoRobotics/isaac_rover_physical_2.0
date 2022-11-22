@@ -172,9 +172,9 @@ class motor_subscriber(Node):
             self.control[RL].phys = 0 
             self.control[RR].phys = 0  
             self.node.sdo[0x1011][0x05].phys = 0x64616F6C # Restart the drive 
-            os.kill(os.getppid(), signal.CTRL_C_EVENT)
             self.destroy_node()
             rclpy.shutdown()
+            os.kill(os.getppid(), signal.CTRL_C_EVENT)
         
         elif msg.turn_around == 1:
             #self.target_pos[FL_ang].phys = steering_angles[FL]
