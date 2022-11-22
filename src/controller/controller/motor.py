@@ -81,30 +81,42 @@ class motor_subscriber(Node):
 
             if id >= 7 :
                 # initilize the mode to Profile Position
-                self.mode_oper[id].phys = 6
+                #self.mode_oper[id].phys = 6
 
-                if self.mode_disp[id].phys == 6:
-                    if self.status[id].bits[13] == 0 and self.status[id].bits[12] == 0 and self.status[id].bits[10] == 0:
-                        self.get_logger().info('Homeing is performed on NodeID' + str(id + 1))
+                # if self.mode_disp[id].phys == 6:
+                #     if self.status[id].bits[13] == 0 and self.status[id].bits[12] == 0 and self.status[id].bits[10] == 0:
+                #         self.get_logger().info('Homeing is performed on NodeID' + str(id + 1))
 
                         
-                        if self.status[id].bits[13] == 0 and self.status[id].bits[12] == 1 and self.status[id].bits[10] == 1:
-                            self.get_logger().info('Homeing completed on NodeID' + str(id + 1))
+                #         if self.status[id].bits[13] == 0 and self.status[id].bits[12] == 1 and self.status[id].bits[10] == 1:
+                #             self.get_logger().info('Homeing completed on NodeID' + str(id + 1))
 
 
-            self.mode_oper[id].phys = 0x01
+                self.mode_oper[id].phys = 0x01
+                self.get_logger().info('Position ID: ' + str(id + 1) )
+
+                self.target_pos[id] = self.node.sdo[0x607A]
 
                 #self.node.sdo[0x6083].phys # Desired starting acceleration
                 #self.node.sdo[0x6083].phys # Desired braking deceleration
-
+        
                 # Initilize the position motors
                 if self.mode_disp[id].phys == 1:
                     self.target_pos[id].phys = 0
+                    self.control[id].bits[4] = 0
+                    if self.status[id].bits[12] == 1:
+                        self.get_logger().info('The  target angle is valid')
+                        while self.status[id].bits[10] == 0:
+                            self.get_logger().info('The motor is moving')
+
+                        
+                                
 
 
             elif id < 7:        
                 # initilize the mode to velocity
                 self.mode_oper[id].phys = 0x02
+                self.get_logger().info('Velocity ID: ' + str(id + 1) )
 
                 # Setting the acceleration
                 self.node.sdo['vl velocity acceleration']['DeltaSpeed'].phys = 3500
@@ -169,6 +181,7 @@ class motor_subscriber(Node):
             #self.target_pos[FR_ang].phys = steering_angles[FR]
             #self.target_pos[RL_ang].phys = steering_angles[RL]
             #self.target_pos[RR_ang].phys = steering_angles[RR]
+            pass
         
 
 def main(args=None):
