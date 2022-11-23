@@ -36,6 +36,8 @@ class motor_subscriber(Node):
         global FL, FR, CL, CR, RL, RR, FL_ang, FR_ang, RL_ang, RR_ang
         FL, FR, CL, CR, RL, RR, FL_ang, FR_ang, RL_ang, RR_ang = range(0,10) # Define the ID's
         ID = [FL, FR, CL, CR, RL, RR, FL_ang, FR_ang, RL_ang, RR_ang]
+        ID_hall = [FL, FR, CL, CR, RL, RR]
+        ID_en = [FL_ang, FR_ang, RL_ang, RR_ang]
 
         self.get_logger().info(str(ID))
         self.mode_oper  =   []
@@ -46,7 +48,8 @@ class motor_subscriber(Node):
         self.actual_vl  =   [] 
         self.target_pos =   []
 
-        controller_utils.autosetup(ID)   # Auto-setup for the motors so they all have the same
+        controller_utils.autosetup(ID_hall)   # Auto-setup for the motors so they all have the same
+        controller_utils.autosetup_encoder(ID_en)
 
         for id in ID:
             
@@ -91,7 +94,6 @@ class motor_subscriber(Node):
                 #         if self.status[id].bits[13] == 0 and self.status[id].bits[12] == 1 and self.status[id].bits[10] == 1:
                 #             self.get_logger().info('Homeing completed on NodeID' + str(id + 1))
 
-
                 self.mode_oper[id].phys = 0x01
                 self.get_logger().info('Position ID: ' + str(id + 1) )
 
@@ -115,6 +117,7 @@ class motor_subscriber(Node):
 
             elif id < 7:        
                 # initilize the mode to velocity
+
                 self.mode_oper[id].phys = 0x02
                 self.get_logger().info('Velocity ID: ' + str(id + 1) )
 
