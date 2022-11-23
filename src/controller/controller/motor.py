@@ -92,7 +92,7 @@ class motor_subscriber(Node):
                             self.get_logger().info('Homeing completed on NodeID' + str(id + 1))
 
 
-            self.mode_oper[id].phys = 0x01
+                self.mode_oper[id].phys = 0x01
 
                 #self.node.sdo[0x6083].phys # Desired starting acceleration
                 #self.node.sdo[0x6083].phys # Desired braking deceleration
@@ -165,10 +165,10 @@ class motor_subscriber(Node):
             rclpy.shutdown()
         
         elif msg.turn_around == 1:
-            #self.target_pos[FL_ang].phys = steering_angles[FL]
-            #self.target_pos[FR_ang].phys = steering_angles[FR]
-            #self.target_pos[RL_ang].phys = steering_angles[RL]
-            #self.target_pos[RR_ang].phys = steering_angles[RR]
+            self.target_pos[FL_ang].phys = steering_angles[FL]
+            self.target_pos[FR_ang].phys = steering_angles[FR]
+            self.target_pos[RL_ang].phys = steering_angles[RL]
+            self.target_pos[RR_ang].phys = steering_angles[RR]
         
 
 def main(args=None):

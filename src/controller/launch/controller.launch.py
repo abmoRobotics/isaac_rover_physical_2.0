@@ -10,26 +10,13 @@ namespace_ = 'controller'
 
 def generate_launch_description():
     return LaunchDescription([
-        # Node(
-        #     package='controller',
-        #     executable='Kinematics_node',
-        #     name='Kinematics_node',
-        #     namespace=namespace_,
-        #     output='screen'
-        # ),
-        # Node(
-        #     package='controller',
-        #     executable='motor_node',
-        #     name='motor_node',
-        #     namespace=namespace_,
-        #     output='screen'
-        # ),
         Node(
             package='joy',
             namespace='joy',
             executable='joy_node',
             name='joy_node'
         ),
+        
         Node(
             package='controller',
             namespace='joy_listener',

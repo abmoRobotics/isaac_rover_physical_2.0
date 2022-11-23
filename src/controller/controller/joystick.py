@@ -78,7 +78,7 @@ class joy_listener(Node):
         button_Y = msg.buttons[3] # Breaks the automatic mode
         button_X = msg.buttons[2] # Starts the automatic mode
 
-        button_LB = msg.buttons[4] # It powers off the motors
+        button_LB = msg.buttons[4] # It powers off the motors and node
         button_RB = msg.buttons[5]
         
         butten_LT = msg.axes[2] - 1 # Increse or decrese the speed of the robot to move either forward or backward

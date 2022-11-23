@@ -9,24 +9,26 @@ from launch.substitutions import LaunchConfiguration, PythonExpression
 namespace_ = 'rl_camera'
 
 def generate_launch_description():
-    
-    camera = Node(
-        package='rl_camera',
-        executable='Camera_node',
-        name='Camera_node',
-        namespace=namespace_,
-        output='screen'
-    )
-    
-    model = Node(
-        package='rl_camera',
-        executable='RLModel_node',
-        name='RLModel_node',
-        namespace=namespace_,
-        output='screen'
-    )
-    
     return LaunchDescription([
-        camera,
-        model
+    
+        Node(
+            package='rl_camera',
+            executable='Camera_newnode',
+            name='Camera_newnode',
+            namespace='Camera_newnode',
+    
+        )
+    
+    # model = Node(
+    #     package='rl_camera',
+    #     executable='RLModel_node',
+    #     name='RLModel_node',
+    #     namespace=namespace_,
+    #     output='screen'
+    # )
+    
+    
+        #camera,
+        #model
+ 
     ])
