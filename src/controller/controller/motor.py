@@ -46,7 +46,7 @@ class motor_subscriber(Node):
         self.status     =   []
         self.control    =   []
         self.actual_vl  =   [] 
-        self.target_pos =   []
+        self.target_pos =   [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         controller_utils.autosetup(ID_hall)   # Auto-setup for the motors so they all have the same
         controller_utils.autosetup_encoder(ID_en)
@@ -82,7 +82,7 @@ class motor_subscriber(Node):
 
 
 
-            if id >= 7 :
+            if id >= 6 :
                 # initilize the mode to Profile Position
                 #self.mode_oper[id].phys = 6
 
@@ -95,25 +95,23 @@ class motor_subscriber(Node):
                 #             self.get_logger().info('Homeing completed on NodeID' + str(id + 1))
 
                 self.mode_oper[id].phys = 0x01
-                self.get_logger().info('Position ID: ' + str(id + 1) )
-
-<<<<<<< HEAD
-                self.mode_oper[id].phys = 0x01
-=======
-                self.target_pos[id] = self.node.sdo[0x607A]
->>>>>>> a62cc1f3064ba10f5aa58bbc7d95760e3609f3e5
+                #self.get_logger().info('Position ID: ' + str(id + 1) )
+                self.get_logger().info(str(self.mode_disp[id].phys))
 
                 #self.node.sdo[0x6083].phys # Desired starting acceleration
                 #self.node.sdo[0x6083].phys # Desired braking deceleration
         
                 # Initilize the position motors
                 if self.mode_disp[id].phys == 1:
-                    self.target_pos[id].phys = 0
-                    self.control[id].bits[4] = 0
+                    self.target_pos.insert(id, self.node.sdo[0x607A])
+                    self.control[id].bits[4] = 1
+                    self.target_pos[id].phys = 0.7
                     if self.status[id].bits[12] == 1:
                         self.get_logger().info('The  target angle is valid')
                         while self.status[id].bits[10] == 0:
                             self.get_logger().info('The motor is moving')
+                    else:
+                        self.get_logger().info('Bit 12 is: ' + str(self.status[id].bits[12]))
 
                         
                                 
@@ -135,14 +133,14 @@ class motor_subscriber(Node):
 
                 # Initilize the velocity motors
                 if self.mode_disp[id].phys == 2:
-                        self.target_vl[id].phys = 0
-                        self.control[id].phys = 0x0006
-                        if self.status[id].bits[0] == 1 and self.status[id].bits[5] == 1 and self.status[id].bits[9] == 1: 
-                            self.control[id].phys = 0x0007
-                            if self.status[id].bits[0] == 1 and self.status[id].bits[1] == 1 and self.status[id].bits[4] == 1 and self.status[id].bits[5] == 1 and self.status[id].bits[9] == 1:
-                                self.control[id].phys = 0x000F
-                            else:
-                                self.get_logger().info('I did not do it')
+                    self.target_vl[id].phys = 0
+                    self.control[id].phys = 0x0006
+                    if self.status[id].bits[0] == 1 and self.status[id].bits[5] == 1 and self.status[id].bits[9] == 1: 
+                        self.control[id].phys = 0x0007
+                        if self.status[id].bits[0] == 1 and self.status[id].bits[1] == 1 and self.status[id].bits[4] == 1 and self.status[id].bits[5] == 1 and self.status[id].bits[9] == 1:
+                            self.control[id].phys = 0x000F
+                        else:
+                            self.get_logger().info('I did not do it')
 
 
         self.subscription = self.create_subscription(
@@ -184,18 +182,11 @@ class motor_subscriber(Node):
             os.kill(os.getppid(), signal.CTRL_C_EVENT)
         
         elif msg.turn_around == 1:
-<<<<<<< HEAD
-            self.target_pos[FL_ang].phys = steering_angles[FL]
-            self.target_pos[FR_ang].phys = steering_angles[FR]
-            self.target_pos[RL_ang].phys = steering_angles[RL]
-            self.target_pos[RR_ang].phys = steering_angles[RR]
-=======
             #self.target_pos[FL_ang].phys = steering_angles[FL]
             #self.target_pos[FR_ang].phys = steering_angles[FR]
             #self.target_pos[RL_ang].phys = steering_angles[RL]
             #self.target_pos[RR_ang].phys = steering_angles[RR]
             pass
->>>>>>> a62cc1f3064ba10f5aa58bbc7d95760e3609f3e5
         
 
 def main(args=None):
