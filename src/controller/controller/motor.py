@@ -21,6 +21,7 @@ class motor_subscriber(Node):
         ############
         self.max_linear_vel = 2000
         self.max_angular_vel = 400
+        self.get_logger().info(f'{GPIO.JETSON_INFO}')
 
         ####################
         # Open can network #
@@ -33,7 +34,7 @@ class motor_subscriber(Node):
         # Setup motor controllers #
         ###########################
         eds_path = 'src/controller/config/C5-E-2-09.eds'
-        global FL, FR, CL, CR, RL, RR, FL_ang, FR_ang, RL_ang, RR_ang
+        global FL, FR, CL, CR, RL, RR, FL_ang, FR_ang, RL_ang, RR_ang, ID
         FL, FR, CL, CR, RL, RR, FL_ang, FR_ang, RL_ang, RR_ang = range(0,10) # Define the ID's
         ID = [FL, FR, CL, CR, RL, RR, FL_ang, FR_ang, RL_ang, RR_ang]
         ID_hall = [FL, FR, CL, CR, RL, RR]
@@ -61,6 +62,7 @@ class motor_subscriber(Node):
             self.mode_disp.append(self.node.sdo['Modes of operation display'])
             self.status.append(self.node.sdo['Statusword'])
             self.control.append(self.node.sdo['Controlword'])
+            self.control[id].phys = 0
             self.actual_vl.append(self.node.sdo[0x6044])
 
 
@@ -104,12 +106,27 @@ class motor_subscriber(Node):
                 # Initilize the position motors
                 if self.mode_disp[id].phys == 1:
                     self.target_pos.insert(id, self.node.sdo[0x607A])
-                    self.control[id].bits[4] = 1
-                    self.target_pos[id].phys = 0.7
+                    self.control[id].phys = 0x0006
+
+
+                    if self.status[id].bits[0] == 1 and self.status[id].bits[5] == 1 and self.status[id].bits[9] == 1: 
+                        self.control[id].phys = 0x0007
+                        if self.status[id].bits[0] == 1 and self.status[id].bits[1] == 1 and self.status[id].bits[4] == 1 and self.status[id].bits[5] == 1 and self.status[id].bits[9] == 1:
+                            self.control[id].phys = 0x000F
+                            self.target_pos[id].phys = 0
+                            self.control[id].bits[5] = 1
+                            self.control[id].bits[4] = 1
+
+                        else:
+                            self.get_logger().info('I did not do it')
+                    else:
+                        self.get_logger().info('I did not do it')
+
                     if self.status[id].bits[12] == 1:
                         self.get_logger().info('The  target angle is valid')
-                        while self.status[id].bits[10] == 0:
+                        if self.status[id].bits[10] == 0:
                             self.get_logger().info('The motor is moving')
+
                     else:
                         self.get_logger().info('Bit 12 is: ' + str(self.status[id].bits[12]))
 
@@ -153,14 +170,14 @@ class motor_subscriber(Node):
     def listener_callback(self, msg):
         
         
-        self.get_logger().info(' Node3: "%s"' % str(self.actual_vl[CL].phys) + 'Node1 "%s"' % str(self.actual_vl[FL].phys) + ' Node2: "%s"' % str(self.actual_vl[FR].phys))
-        
+        #self.get_logger().info(' Node3: "%s"' % str(self.actual_vl[CL].phys) + 'Node1 "%s"' % str(self.actual_vl[FL].phys) + ' Node2: "%s"' % str(self.actual_vl[FR].phys))
+        #self.get_logger().info("angular:" + str(msg.motor_angular_vel) + "linear: " + str(msg.motor_linear_vel) )
         steering_angles, motor_velocities = controller_utils.Ackermann(msg.motor_linear_vel, msg.motor_angular_vel, device='cpu')
-        #self.get_logger().info(' Vel controller: "%s"' % str(msg.motor_linear_vel) + 'Velocity "%s"' % str(motor_velocities))
-        #self.target_pos[FL_ang].phys = steering_angles[FL]
-        #self.target_pos[FR_ang].phys = steering_angles[FR]
-        #self.target_pos[RL_ang].phys = steering_angles[RL]
-        #self.target_pos[RR_ang].phys = steering_angles[RR]
+        #self.get_logger().info(' Pos controller: "%s"' % str(msg.motor_angular_vel) + 'Angle "%s"' % str(steering_angles))
+        self.target_pos[FL_ang].phys = steering_angles[FL] 
+        self.target_pos[FR_ang].phys = steering_angles[FR]
+        self.target_pos[RL_ang].phys = steering_angles[RL]
+        self.target_pos[RR_ang].phys = steering_angles[RR]
 
         self.target_vl[FL].phys = (motor_velocities[FL] * 9.549297) 
         self.target_vl[FR].phys = (-motor_velocities[FR] * 9.549297)
@@ -176,6 +193,11 @@ class motor_subscriber(Node):
             self.control[CR].phys = 0
             self.control[RL].phys = 0 
             self.control[RR].phys = 0  
+            self.control[FL_ang].phys = 0
+            self.control[FR_ang].phys = 0
+            self.control[RL_ang].phys = 0
+            self.control[RR_ang].phys = 0
+
             self.node.sdo[0x1011][0x05].phys = 0x64616F6C # Restart the drive 
             self.destroy_node()
             rclpy.shutdown()
@@ -193,8 +215,6 @@ def main(args=None):
     rclpy.init(args=args)
     motor_sub = motor_subscriber()
 
-
-    motor_sub.get_logger().info(f'{GPIO.JETSON_INFO}')
     rclpy.spin(motor_sub)
 
     # Destroy the node explicitly
