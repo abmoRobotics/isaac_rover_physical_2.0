@@ -71,6 +71,9 @@ def Ackermann(lin_vel, ang_vel, device):
     motor_velocities = motor_velocities/wheel_diameter
     
     steering_angles = torch.transpose(torch.where(wheel_locations[:,:,0] > P[:,:,0], torch.atan2(wheel_locations[:,:,1], wheel_locations[:,:,0] - P[:,:,0]), torch.atan2(-wheel_locations[:,:,1], -wheel_locations[:,:,0] - P[:,:,0])), 0, 1)
+    steering_angles = torch.where(steering_angles < -3.1415/2, steering_angles + math.pi, steering_angles)
+    steering_angles = torch.where(steering_angles > 3.1415/2, steering_angles - math.pi, steering_angles)
+
     steering_angles = steering_angles.squeeze().detach().numpy()
     motor_velocities = motor_velocities.squeeze().detach().numpy()
     
