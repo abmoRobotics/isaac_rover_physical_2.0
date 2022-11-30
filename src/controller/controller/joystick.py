@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
-from imaplib import Commands
-from pickle import FALSE
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Joy
 from rover_msgs.msg import MotorCommands
 import numpy as np
-#import math
 import cmath
-import importlib.util
 
 #It makes possible to see the angles and velocities in each robot wheel
 #spec=importlib.util.spec_from_file_location("kinematicsCPU","/home/orin/Documents/isaac_rover_physical_2.0/src/controller/scripts/kinematicsCPU.py")
