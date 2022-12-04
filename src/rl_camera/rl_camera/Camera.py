@@ -5,8 +5,11 @@
 
 import rclpy
 from rclpy.node import Node
-from camera_utils import ZedCamera
+from camera_utils import ZedCamera, point_cloud
 from sensor_msgs.msg import PointCloud2
+import time
+import numpy as np
+import open3d as o3d
 
 class Camera_newnode(Node):
     """Convert Motor Commands"""
@@ -22,26 +25,28 @@ class Camera_newnode(Node):
                 'PointCloud2',
                 1)
         
-        timer_period = 0.25
+        timer_period = 10
+        self.get_logger().info('\t{} STARTED.'.format(self.node_name.upper()))
         self.timer = self.create_timer(timer_period, self.callback)
 
         """Init Camera."""
         self.camera = ZedCamera()
-        
-        self.get_logger().info('\t{} STARTED.'.format(self.node_name.upper()))
+    
        
 
  
 
     def callback(self):
-        msg = PointCloud2()
-        self.get_logger().info("inside callback")
-           
-        #start = time.perf_counter()  #returns the float value of time in s
-        heightData  = self.camera.callback() ### 0.14s - 0.294s
-        msg.data  = heightData
+        start = time.perf_counter()
+        #msg = PointCloud2()
+        heightData  = self.camera.callback() 
+        pcd = point_cloud(heightData,"map")
+        self.pub.publish(pcd)
+        #msg.data  = int(heightData)
+        #self.get_logger().info(str(pcd))
         self.get_logger().info(str(heightData))
-        #end = time.perf_counter() - start
+        end = time.perf_counter() - start
+        self.get_logger().info(str(end))
             
 
 
@@ -51,6 +56,7 @@ def main(args=None):
     rclpy.spin(CameraNode)
     CameraNode.destroy_node()
     rclpy.shutdown()
+ 
     
 
 

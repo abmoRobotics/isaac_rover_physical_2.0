@@ -106,7 +106,7 @@ class motor_subscriber(Node):
                 if self.mode_disp[id].phys == 1:
                     self.target_pos.insert(id, self.node.sdo[0x607A]) # Initilize position motors
 
-                    self.node.sdo[0x6081].phys = 1000 # Profile Velocity
+                    self.node.sdo[0x6081].phys = 2000 # Profile Velocity
                     self.node.sdo[0x6083].phys = 3000 # Profile Acceleration
                     self.node.sdo[0x6084].phys = 3000 # Profile Deceleration
 
