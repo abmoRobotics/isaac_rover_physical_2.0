@@ -49,3 +49,14 @@ The NVIDIA ORIN has some minor things that do not work:
 
 2. The ZED2i camera is not well integrated into the code, so the cameras PointCloud might be slow when processing high resolution. 
 
+
+### 3. Remote interface
+
+To enable the remote interface, open the joystick node and set the ENABLE_REMOTE_INTERFACE boolean . If this is enabled and the node starts, you will not be able to control the rover using the joystick until the client connected to the rover.
+
+NOTE: The remote device needs to connect to the rovers wifi (power on router and use default credentials).
+
+Put the client python file on your client PC and execute it after the rover was started and all motor controllers have been initialized. If the connection is successfull you will get a console output and after a few seconds you will recive the videostream from the rover. The currently low framerate is caused by the fact that we only send frames when we also get a pointcloud. This can be changed, but be aware of potential conflicts on the data bus if decoupled from point cloud procedure.
+
+NOTE: in the current implementation the joystick node will crash if the remote device loses connection to the rover.
+
