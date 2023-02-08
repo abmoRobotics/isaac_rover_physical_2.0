@@ -1,15 +1,13 @@
-# isaac_rover_physical_2.0
-
-## Table of content
+# Table of content: isaac_rover_physical_2.0
 [Old repository](#old-repository)<br/>
 [Joystick control](#Joystick-control)<br/>
 [Documentation](#documentation)<br/>
+1. [Motor Controllers](#1-motor-controllers)<br/>
+2. [NVIDIA Orin (Issues)](#2-nvidia-jetson-agx-orin-developer-kit)<br/>
 
 
-
-P7 - Rover
 ## Old repository
-https://github.com/abmoRobotics/isaac_rover_physical
+P6 - Rover (ExoMy): https://github.com/abmoRobotics/isaac_rover_physical
 
 
 ## Joystick control
@@ -23,7 +21,7 @@ Note: The cross can be clicked at any time to change the maximum speed.
 6. To enable automatic robot drive click X or A.
 7. Prees LB to power off the motors (TRY TO AVOID TURNING OFF THE MOTORS WHILE DRIVING, TO NOT DAMAGE THE ROVER).
 
-The code for the joystick can be found here: [link](https://github.com/abmoRobotics/isaac_rover_physical_2.0/blob/main/src/controller/controller/joystick.py)
+The code for the joystick can be found here: [joystick.py](https://github.com/abmoRobotics/isaac_rover_physical_2.0/blob/main/src/controller/controller/joystick.py)
 
 ## Terminal commands
 Use the docker to build the entire images of ros and the dependencies, run:
@@ -41,9 +39,9 @@ The CAN bus is set up with the following guide to controle the motors: [Enabling
 
 - The code for controlling the motors can be forund here: [motor.py](https://github.com/abmoRobotics/isaac_rover_physical_2.0/blob/main/src/controller/controller/motor.py) the way the motors is controlled is thru SDO, other solutions do exist.
 
-- Kinematic ( Ackermann steering) [Kinematics.py](https://github.com/abmoRobotics/isaac_rover_physical_2.0/blob/main/src/controller/controller_utils/kinematics.py)
+- Kinematic ( Ackermann steering ) [Kinematics.py](https://github.com/abmoRobotics/isaac_rover_physical_2.0/blob/main/src/controller/controller_utils/kinematics.py)
 
-### 2. NVIDIA Jetson AGX Orin Developer Kit
+### 2. NVIDIA Jetson AGX Orin Developer Kit (Issues)
 
 The NVIDIA ORIN has some minor things that do not work: 
 
