@@ -30,4 +30,5 @@ docker exec -it distracted_ride bash
 ```
 
 ## Documentation 
+The motors has some minor things that could be fixed: 
 Motor controllers: [link](https://en.nanotec.com/products/1768-c5-e-2-09-motor-controller-drive-for-canopen-or-usb)
