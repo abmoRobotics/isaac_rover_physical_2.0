@@ -3,8 +3,8 @@
 <package format="3">
   <name>rl_camera</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="jknuds19@student.aau.dk">xavier</maintainer>
+  <description>Package that is used for the reinforcement learnig camera</description>
+  <maintainer email="mrma19@student.aau.dk">xavier</maintainer>
   <license>TODO: License declaration</license>
 
   <test_depend>ament_copyright</test_depend>

@@ -3,8 +3,8 @@
 <package format="3">
   <name>controller</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="jknuds19@student.aau.dk">xavier</maintainer>
+  <description>Package that contorl the motors, and include the launch of joystick and camera</description>
+  <maintainer email="mrma19@student.aau.dk">orin</maintainer>
   <license>TODO: License declaration</license>
 
   <test_depend>ament_copyright</test_depend>
