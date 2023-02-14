@@ -1,26 +1,6 @@
 #!/usr/bin/env python3
 import pyzed.sl as sl
-import math
-
-
-def quaternion_to_euler_angle(w, x, y, z):
-    ysqr = y * y
-
-    t0 = +2.0 * (w * x + y * z)
-    t1 = +1.0 - 2.0 * (x * x + ysqr)
-    X = math.degrees(math.atan2(t0, t1))
-
-    t2 = +2.0 * (w * y - z * x)
-    t2 = +1.0 if t2 > +1.0 else t2
-    t2 = -1.0 if t2 < -1.0 else t2
-    Y = math.degrees(math.asin(t2))
-
-    t3 = +2.0 * (w * z + x * y)
-    t4 = +1.0 - 2.0 * (ysqr + z * z)
-    Z = math.degrees(math.atan2(t3, t4))
-
-    return X, Y, Z
-
+import time 
 
 def main():
     # Create a Camera object
@@ -28,9 +8,16 @@ def main():
 
     # Create a InitParameters object and set configuration parameters
     init_params = sl.InitParameters()
+    initial_trans = sl.Transform()
+    initial_rot = sl.Rotation()
+    iden = initial_rot.set_identity()
+    initial_rot.init_rotation(iden)
+    initial_trans.set_euler_angles(0,0,0,radian=False)
+    
+
     init_params.camera_resolution = sl.RESOLUTION.HD720  # Use HD720 video mode (default fps: 60)
     # Use a right-handed Y-up coordinate system
-    init_params.coordinate_system = sl.COORDINATE_SYSTEM.RIGHT_HANDED_Y_UP
+    init_params.coordinate_system = sl.COORDINATE_SYSTEM.IMAGE
     init_params.coordinate_units = sl.UNIT.METER  # Set units in meters
 
     # Open the camera
@@ -41,6 +28,7 @@ def main():
     # Enable positional tracking with default parameters
     py_transform = sl.Transform()  # First create a Transform object for TrackingParameters object
     tracking_parameters = sl.PositionalTrackingParameters(_init_pos=py_transform)
+    tracking_parameters.set_initial_world_transform(initial_trans)
     err = zed.enable_positional_tracking(tracking_parameters)
     if err != sl.ERROR_CODE.SUCCESS:
         exit(1)
@@ -66,44 +54,18 @@ def main():
             tz = round(zed_pose.get_translation(py_translation).get()[2], 3)
             print("Translation: Tx: {0}, Ty: {1}, Tz {2}, Timestamp: {3}\n".format(tx, ty, tz, zed_pose.timestamp.get_milliseconds()))
 
-            # Display the orientation quaternion
-            py_orientation = sl.Orientation()
-            ox = round(zed_pose.get_orientation(py_orientation).get()[0], 3)
-            oy = round(zed_pose.get_orientation(py_orientation).get()[1], 3)
-            oz = round(zed_pose.get_orientation(py_orientation).get()[2], 3)
-            ow = round(zed_pose.get_orientation(py_orientation).get()[3], 3)
-            print("Orientation: Ox: {0}, Oy: {1}, Oz {2}, Ow: {3}\n".format(ox, oy, oz, ow))
-            x, y, z = quaternion_to_euler_angle(ow, ox, oy, oz)
-            print("Angle x: {0}, y: {1}, z {2}\n".format(x, y, z))
+            x_rot = -36.81294151251732
+            y_rot = -1.3037060699855711
+            z_rot = -1.7388430777330455
             
-            #Display the IMU acceleratoin
-            acceleration = [0,0,0]
-            zed_imu.get_linear_acceleration(acceleration)
-            ax = round(acceleration[0], 3)
-            ay = round(acceleration[1], 3)
-            az = round(acceleration[2], 3)
-            print("IMU Acceleration: Ax: {0}, Ay: {1}, Az {2}\n".format(ax, ay, az))
-            
-            #Display the IMU angular velocity
-            a_velocity = [0,0,0]
-            zed_imu.get_angular_velocity(a_velocity)
-            vx = round(a_velocity[0], 3)
-            vy = round(a_velocity[1], 3)
-            vz = round(a_velocity[2], 3)
-            print("IMU Angular Velocity: Vx: {0}, Vy: {1}, Vz {2}\n".format(vx, vy, vz))
-
-            # Display the IMU orientation quaternion
-            zed_imu_pose = sl.Transform()
-            ox = round(zed_imu.get_pose(zed_imu_pose).get_orientation().get()[0], 3)
-            oy = round(zed_imu.get_pose(zed_imu_pose).get_orientation().get()[1], 3)
-            oz = round(zed_imu.get_pose(zed_imu_pose).get_orientation().get()[2], 3)
-            ow = round(zed_imu.get_pose(zed_imu_pose).get_orientation().get()[3], 3)
-            print("IMU Orientation: Ox: {0}, Oy: {1}, Oz {2}, Ow: {3}\n".format(ox, oy, oz, ow))
-
-        if ax or ay or az >= 1:
-                break
-    # Close the camera
-    zed.close()
+            #pos_rot = sl.Rotation()
+            rot_x = round(zed_pose.get_euler_angles(radian = False)[0], 3)
+            rot_y = round(zed_pose.get_euler_angles(radian = False)[1], 3)
+            rot_z = round(zed_pose.get_euler_angles(radian = False)[2], 3)
+            print("Rotation: Tx: {0}, Ty: {1}, Tz {2}, Timestamp: {3}\n".format(rot_x, rot_y, rot_z, zed_pose.timestamp.get_milliseconds()))
+            time.sleep(1)
+        # Close the camera
+        #zed.close()
 
 if __name__ == "__main__":
     main()        

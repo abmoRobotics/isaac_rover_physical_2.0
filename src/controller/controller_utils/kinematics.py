@@ -21,8 +21,10 @@ def Ackermann(lin_vel, ang_vel, device):
     # type: (Tensor, Tensor, str) -> Tuple[Tensor, Tensor]
     # All measurements in Meters!
 
+    scale = 1
+
     num_robots = 1
-    wheel_diameter = 0.2
+    wheel_diameter = 0.2 * scale
     lin_vel = torch.tensor([lin_vel], device=device)
     ang_vel = torch.tensor([ang_vel], device=device)
 
@@ -35,10 +37,10 @@ def Ackermann(lin_vel, ang_vel, device):
     wheel_RR = torch.unsqueeze(torch.transpose(torch.tensor(  [[0.385],[-0.411]],  device=device).repeat(1,num_robots), 0, 1),0)
     
     # Wheel locations, collected in a single variable
-    wheel_locations = torch.cat((wheel_FL, wheel_FR, wheel_ML, wheel_MR, wheel_RL, wheel_RR), 0)
+    wheel_locations = torch.cat((wheel_FL, wheel_FR, wheel_ML, wheel_MR, wheel_RL, wheel_RR), 0) * scale
     
     # The distance at which the rover should switch to turn on the spot mode.
-    bound = 0.45 
+    bound = 0.45 * scale
 
     # Turning point
     P = torch.unsqueeze(lin_vel/ang_vel, 0)
@@ -68,11 +70,14 @@ def Ackermann(lin_vel, ang_vel, device):
     motor_velocities = torch.where(dist > 1000, torch.transpose(lin_vel.repeat((6,1)), 0, 1), motor_velocities)
 
     # Convert linear velocity above ground to rad/s
-    motor_velocities = motor_velocities/wheel_diameter
+    motor_velocities = (motor_velocities/wheel_diameter)*scale
     
     steering_angles = torch.transpose(torch.where(torch.abs(wheel_locations[:,:,0]) > torch.abs(P[:,:,0]), torch.atan2(wheel_locations[:,:,1], wheel_locations[:,:,0] - P[:,:,0]), torch.atan2(wheel_locations[:,:,1], wheel_locations[:,:,0] - P[:,:,0])), 0, 1)
     steering_angles = torch.where(steering_angles < -3.1415/2, steering_angles + 3.1415, steering_angles)
     steering_angles = torch.where(steering_angles > 3.1415/2, steering_angles - 3.1415, steering_angles)
+
+    # Sets the wheels straigt when at stand-still
+    steering_angles = torch.where(torch.abs(motor_velocities) < 0.001, torch.zeros_like(steering_angles), steering_angles)
 
     steering_angles = steering_angles.squeeze().detach().numpy()
     motor_velocities = motor_velocities.squeeze().detach().numpy()

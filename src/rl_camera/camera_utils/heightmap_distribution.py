@@ -11,21 +11,25 @@ import math
 class Heightmap():
     def __init__(self, device):
         self.device = device
-        
+        # Borders to remove because of the rover is in the field of view
+        self.rover_border1 = [[[0.51,0.118],[0.51,0.119],'left'],[[-0.51,0.118],[-0.51,0.119],'right'],[[1.0,0.118],[-1.0,0.118],'over'],[[1.0,0.55],[-1.0,0.55],'below']]
+        #self.rover_border2 = [[[1.0,0.118],[1.0,0.119],'left'],[[-1.0,0.118],[-1.0,0.119],'right'],[[1.0,0.118],[-1.0,0.118],'over'],[[1.0,1.400],[-1.0,1.400],'below']]
+        #self.rover_border3 = [[[1.0,0.118],[1.0,0.119],'left'],[[-1.0,0.118],[-1.0,0.119],'right'],[[1.0,0.118],[-1.0,0.118],'over'],[[1.0,1.400],[-1.0,1.400],'below']]
+
         # Define the borders of the area using lines. Define where points should be with respect to line.
         self.coarse_border = [[[1.220,0.118],[4.4455,3.150],'over'],[[-1.220,0.118],[-4.4455,3.150],'over'],[[1.220,0.118],[-1.220,0.118],'over']] 
-        self.coarse_radius = 5.0
+        self.coarse_radius = 3.5
 
-        self.fine_border = [[[1.220,0.118],[4.4455,3.150],'over'],[[-1.220,0.118],[-4.4455,3.150],'over'],[[1.220,0.118],[-1.220,0.118],'over']] 
+        self.fine_border = [[[1.0,0.118],[1.0,0.119],'left'],[[-1.0,0.118],[-1.0,0.119],'right'],[[1.0,0.118],[-1.0,0.118],'over'],[[1.0,1.400],[-1.0,1.400],'below']]
         self.fine_radius = 1.2
 
         self.beneath_border = [[[0.32,0],[0.320,1],'left'],[[-0.320,0],[-0.320,1],'right'],[[-0.320,-0.5],[0.320,-0.5],'over'],[[-0.320,0.6],[0.320,0.6],'under']] 
 
-        self.delta_coarse = 0.2
+        self.delta_coarse = 0.15
         self.delta_fine = 0.05
         
         self.see_beneath = False
-        self.HD_enabled = False
+        self.HD_enabled = True
 
         self.z_offset = -0.26878
 
@@ -38,6 +42,7 @@ class Heightmap():
         coarse_idx = []
         fine_idx = []
         beneath_idx = []
+        remove_idx = []
 
         # The coarse map
         y = -10
@@ -65,14 +70,14 @@ class Heightmap():
                 
                 while x < 10:
                     x += self.delta_fine
-                    if self._inside_borders([x, y], self.fine_border) and self._inside_circle([x, y], [0,0], 1.2):
+                    if self._inside_borders([x, y], self.fine_border): # REMEMBER TO CHANGE BELOW
                         if [x, y, self.z_offset] not in point_distribution:
                             point_distribution.append([x, y, self.z_offset])
 
                 y += self.delta_fine
 
             for idx, point in enumerate(point_distribution):
-                if self._inside_borders(point[0:2], self.fine_border) and self._inside_circle(point[0:2], [0,0], self.fine_radius): # REMEMBER TO CHANGE ABOVE
+                if self._inside_borders(point[0:2], self.fine_border): # REMEMBER TO CHANGE ABOVE
                     fine_idx.append(idx)
 
         # Points underneath belly pan
@@ -95,19 +100,50 @@ class Heightmap():
                     beneath_idx.append(idx)
 
 
+        # Remove rover points
+        for idx, point in enumerate(point_distribution):
+                if self._inside_borders(point[0:2], self.rover_border1):# or (self._inside_borders(point[0:2], self.rover_border2)) or (self._inside_borders(point[0:2], self.rover_border3)): # REMEMBER TO CHANGE ABOVE
+                    remove_idx.append(idx)
+
         self.point_distribution = np.round(point_distribution, 4)
 
         self.point_distribution = torch.tensor(point_distribution, device=self.device)
+        for i in range(500):
+            print(i, self.point_distribution[i])
+
+
+        # self.point_distribution[:,1] = self.point_distribution[:,1] + 0.2
+
+        # Code for generating remove_idx tensor for concatenated heightmap
+            # coarse_np = np.array(coarse_idx)
+            # fine_np = np.array(fine_idx)
+            # all_np = np.concatenate((coarse_np, fine_np))
+            # point_distribution_np = self.point_distribution.cpu().numpy()
+            # point_distribution_list = point_distribution_np[all_np].tolist()
+
+            # remove_idx_all = []
+
+            # for idx, point in enumerate(point_distribution_list):
+            #         if self._inside_borders(point[0:2], self.rover_border1):# or (self._inside_borders(point[0:2], self.rover_border2)) or (self._inside_borders(point[0:2], self.rover_border3)): # REMEMBER TO CHANGE ABOVE
+            #             remove_idx_all.append(idx)
+            # self.remove_idx_all = torch.tensor(remove_idx_all, device=self.device)
+
+            # torch.save(self.remove_idx_all, 'remove_idx.pt')
 
         self.coarse_idx = torch.tensor(coarse_idx, device=self.device)
         self.fine_idx = torch.tensor(fine_idx, device=self.device)
         self.beneath_idx = torch.tensor(beneath_idx, device=self.device)
+        self.remove_idx = torch.tensor(remove_idx, device=self.device)
+        
 
         if plot == True:
             fig, ax = plt.subplots()
             ax.scatter(point_distribution[:,0], point_distribution[:,1])
             ax.set_aspect('equal')
             plt.show()
+            
+    def _remove_points(self):
+        return self.remove_idx
 
     def _get_depth_from_idx(self, idx, rays):
         return rays[:,idx]
@@ -119,12 +155,14 @@ class Heightmap():
         return self._get_depth_from_idx(idx, rays)
 
     def get_sparse_vector(self, rays):
+        rays[:, self.remove_idx] = 0
         return self._get_depth_from_idx(self.coarse_idx, rays)
 
     def get_dense_grid(self, rays):
         return self._get_depth_from_idx(idx, rays)
 
     def get_dense_vector(self, rays):
+        rays[:, self.remove_idx] = 0
         return self._get_depth_from_idx(self.fine_idx, rays)
 
     def get_beneath_grid(self, rays):
@@ -132,6 +170,15 @@ class Heightmap():
 
     def get_beneath_vector(self, rays):
         return self._get_depth_from_idx(self.beneath_idx, rays)
+
+    def get_num_sparse_vector(self):
+        return self.coarse_idx.shape[0]
+
+    def get_num_dense_vector(self):
+        return self.fine_idx.shape[0]
+
+    def get_num_beneath_vector(self):
+        return self.beneath_idx.shape[0]
 
     def get_distribution(self):
         return self.distribution

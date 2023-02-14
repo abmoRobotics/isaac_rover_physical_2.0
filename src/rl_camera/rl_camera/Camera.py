@@ -5,7 +5,7 @@
 
 import rclpy
 from rclpy.node import Node
-from camera_utils import ZedCamera, point_cloud
+from camera_utils import ZedCamera, point_cloud, ros_server
 from sensor_msgs.msg import PointCloud2
 import time
 import numpy as np
@@ -31,22 +31,24 @@ class Camera_newnode(Node):
 
         """Init Camera."""
         self.camera = ZedCamera()
+        #self.server = ServerNode()
+        #self.server.run()
     
        
 
  
 
     def callback(self):
-        start = time.perf_counter()
+        #start = time.perf_counter()
         #msg = PointCloud2()
         heightData  = self.camera.callback() 
         pcd = point_cloud(heightData,"map")
         self.pub.publish(pcd)
         #msg.data  = int(heightData)
         #self.get_logger().info(str(pcd))
-        self.get_logger().info(str(heightData))
-        end = time.perf_counter() - start
-        self.get_logger().info(str(end))
+        #self.get_logger().info(str(heightData))
+        #end = time.perf_counter() - start
+        #self.get_logger().info(str(end))
             
 
 
@@ -56,10 +58,6 @@ def main(args=None):
     rclpy.spin(CameraNode)
     CameraNode.destroy_node()
     rclpy.shutdown()
- 
-    
-
-
 
 if __name__ == '__main__':
     main()
