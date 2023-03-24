@@ -16,9 +16,15 @@ To launch the package, follow these steps:
 * Connect too the Orin through ssh or the onboard router: TODO, add ip of the orin
 
 ### 2. Start the ROS package
-* Build the package: colcon build
-* Source the installation folder: source install/setup.bash
-* Launch the package using the ros2 launch command: ros2 launch controller controller.launch.py
+  ```bash
+# Build and source
+colcon build
+source install/setup.bash
+  
+# Launch the package
+ros2 launch command: ros2 launch controller controller.launch.py
+
+```
 
 ## Old repository
 P6 - Rover (ExoMy): https://github.com/abmoRobotics/isaac_rover_physical
