@@ -8,11 +8,10 @@ This version of the system runs on a NVIDIA Xavier, using Ubuntu 20.04, jetpack 
 To launch the package, follow these steps:
 
 
-### 1. Turn on the rover
-* Press the "ORIN" button to turn on the computer.
-* Press the "MOTORS" button to turn on the motors.
-* Wait for the ORIN and MOTORS to turn on.
-* Connect too the Orin through ssh or the onboard router: TODO, add ip of the orin
+### 1. Start the rover
+* **Orin:** Press the "ORIN" button to turn on the computer.
+* **Motors:** Press the "MOTORS" button to turn on the motors.
+* **Connection:** Connect too the Orin through ssh or the onboard router: TODO, add ip of the orin
 
 ### 2. Start the ROS package
   ```bash
