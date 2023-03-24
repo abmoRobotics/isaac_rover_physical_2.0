@@ -26,7 +26,7 @@ ros2 launch command: ros2 launch controller controller.launch.py
 
 ```
 
-Now the rover can be controlled with the joystick
+
 <details>
   <summary>
 
