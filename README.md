@@ -24,7 +24,6 @@ source /opt/ros/foxy/setup.bash
 colcon build
 source install/setup.bash
 
-  
 # Launch the package
 ros2 launch command: ros2 launch controller controller.launch.py
 
