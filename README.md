@@ -1,7 +1,6 @@
 # AAU rover - Software for the physical system
 Repository for the ROS software that runs on the AAU mars rover.
 This version of the system runs on a NVIDIA Xavier, using Ubuntu 20.04, jetpack 5.0 and ROS Foxy.
-![IMG_0386](https://user-images.githubusercontent.com/56405924/227574602-3e77cd32-4e3d-4062-a2f0-1f39a4af5519.jpeg)
 
 
 
