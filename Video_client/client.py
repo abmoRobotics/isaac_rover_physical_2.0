@@ -20,6 +20,7 @@ def recvall(sock, count):
 def mouse_callback(event, x, y, flags, params):
     # If the left mouse button was clicked, send the coordinates to the server
     if event == cv2.EVENT_LBUTTONDOWN:
+        
         message = f'Mouse clicked at ({x}, {y})'
         # Encode the message in base64
         encoded_message = base64.b64encode(bytes(message, 'utf-8'))
@@ -51,15 +52,5 @@ try:
     # Clean up
     cv2.destroyAllWindows()
     sock.close()
-
-
-
-
-
-
-
-
-
-
 
 
