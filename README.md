@@ -26,10 +26,6 @@ ros2 launch command: ros2 launch controller controller.launch.py
 
 ```
 
-## Old repository
-P6 - Rover (ExoMy): https://github.com/abmoRobotics/isaac_rover_physical
-
-
 ## Joystick control
 The joystick used is the Logitech F710.
 1. By default the robot is driven in automatic mode. Click Y to enable the joystick and set the manual mode the robot can be controlled by using the left stick.
