@@ -17,7 +17,7 @@ To launch the package, follow these steps:
   ```bash
 # Clone repo
 git clone https://github.com/abmoRobotics/isaac_rover_physical_2.0
-cd isaac_rover_physical
+cd isaac_rover_physical_2.0
   
 # Build and source
 source /opt/ros/foxy/setup.bash
