@@ -5,6 +5,15 @@
 1. [Motor Controllers](#1-motor-controllers)<br/>
 2. [NVIDIA Orin (Issues)](#2-nvidia-jetson-agx-orin-developer-kit)<br/>
 
+## Simple guide to launch the rover
+To launch the package, follow these steps:
+
+
+	
+1. Install the package's dependencies: ros2dep install --from-path src -i
+2. Build the package: colcon build
+3. Source the installation folder: source install/setup.bash
+4. Launch the package using the ros2 launch command: ros2 launch controller controller.launch.py
 
 ## Old repository
 P6 - Rover (ExoMy): https://github.com/abmoRobotics/isaac_rover_physical
