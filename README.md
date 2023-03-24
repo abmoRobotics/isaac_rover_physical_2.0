@@ -17,6 +17,7 @@ To launch the package, follow these steps:
 ### 2. Start the ROS package
   ```bash
 # Build and source
+source /opt/ros/foxy/setup.bash
 colcon build
 source install/setup.bash
   
