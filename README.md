@@ -25,8 +25,13 @@ source install/setup.bash
 ros2 launch command: ros2 launch controller controller.launch.py
 
 ```
+<details>
+  <summary>
 
 ## Joystick control
+
+  </summary>
+
 The joystick used is the Logitech F710.
 1. By default the robot is driven in automatic mode. Click Y to enable the joystick and set the manual mode the robot can be controlled by using the left stick.
 2. Select the maximum speed by using the cross.
@@ -38,8 +43,15 @@ Note: The cross can be clicked at any time to change the maximum speed.
 7. Prees LB to power off the motors (TRY TO AVOID TURNING OFF THE MOTORS WHILE DRIVING, TO NOT DAMAGE THE ROVER).
 
 The code for the joystick can be found here: [joystick.py](https://github.com/abmoRobotics/isaac_rover_physical_2.0/blob/main/src/controller/controller/joystick.py)
+</details>
 
-## Documentation 
+<details>
+  <summary>
+
+## Additional Documentation 
+
+  </summary>
+
 ### 1. Motor controllers: 
 Nanotech controllers C5-E-2-09: [link to motor controllers](https://en.nanotec.com/products/1768-c5-e-2-09-motor-controller-drive-for-canopen-or-usb)
 
@@ -69,4 +81,4 @@ NOTE: The remote device needs to connect to the rovers wifi (power on router and
 Put the client python file on your client PC and execute it after the rover was started and all motor controllers have been initialized. If the connection is successfull you will get a console output and after a few seconds you will recive the videostream from the rover. The currently low framerate is caused by the fact that we only send frames when we also get a pointcloud. This can be changed, but be aware of potential conflicts on the data bus if decoupled from point cloud procedure.
 
 NOTE: in the current implementation the joystick node will crash if the remote device loses connection to the rover.
-
+</details>
