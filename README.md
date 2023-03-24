@@ -1,9 +1,8 @@
-# Table of content: isaac_rover_physical_2.0
-[Old repository](#old-repository)<br/>
-[Joystick control](#Joystick-control)<br/>
-[Documentation](#documentation)<br/>
-1. [Motor Controllers](#1-motor-controllers)<br/>
-2. [NVIDIA Orin (Issues)](#2-nvidia-jetson-agx-orin-developer-kit)<br/>
+# AAU rover - Software for the physical system
+Repository for the ROS software that runs on the AAU mars rover.
+This version of the system runs on a NVIDIA Xavier, using Ubuntu 20.04, jetpack 5.0 and ROS Foxy.
+
+
 
 ## Simple guide to launch the rover
 To launch the package, follow these steps:
