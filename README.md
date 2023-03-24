@@ -39,12 +39,6 @@ Note: The cross can be clicked at any time to change the maximum speed.
 
 The code for the joystick can be found here: [joystick.py](https://github.com/abmoRobotics/isaac_rover_physical_2.0/blob/main/src/controller/controller/joystick.py)
 
-## Terminal commands
-Use the docker to build the entire images of ros and the dependencies, run:
-```bash
-docker exec -it distracted_ride bash
-```
-
 ## Documentation 
 ### 1. Motor controllers: 
 Nanotech controllers C5-E-2-09: [link to motor controllers](https://en.nanotec.com/products/1768-c5-e-2-09-motor-controller-drive-for-canopen-or-usb)
