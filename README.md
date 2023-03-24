@@ -15,6 +15,10 @@ To launch the package, follow these steps:
 
 ### 2. Start the ROS package
   ```bash
+# Clone repo
+git clone https://github.com/abmoRobotics/isaac_rover_physical_2.0
+cd isaac_rover_physical
+  
 # Build and source
 source /opt/ros/foxy/setup.bash
 colcon build
