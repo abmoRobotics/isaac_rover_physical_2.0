@@ -4,7 +4,7 @@ This version of the system runs on a NVIDIA Xavier, using Ubuntu 20.04, jetpack 
 
 
 
-## Simple guide to launch the rover
+## Launching the rover
 To launch the package, follow these steps:
 
 
@@ -19,11 +19,14 @@ To launch the package, follow these steps:
 source /opt/ros/foxy/setup.bash
 colcon build
 source install/setup.bash
+
   
 # Launch the package
 ros2 launch command: ros2 launch controller controller.launch.py
 
 ```
+
+Now the rover can be controlled with the joystick
 <details>
   <summary>
 
