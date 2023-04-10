@@ -1,0 +1,9 @@
+[submodule "isaac_ros-dev/src/isaac_ros_visual_slam"]
+	path = isaac_ros-dev/src/isaac_ros_visual_slam
+	url = https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_visual_slam
+[submodule "isaac_ros-dev/src/isaac_ros_common"]
+	path = isaac_ros-dev/src/isaac_ros_common
+	url = https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_common
+[submodule "isaac_ros-dev/src/isaac_ros_nitros"]
+	path = isaac_ros-dev/src/isaac_ros_nitros
+	url = https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_nitros
