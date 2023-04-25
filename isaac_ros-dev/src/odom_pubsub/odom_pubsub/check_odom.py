@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 import rclpy
 from rclpy.node import Node
@@ -34,9 +34,9 @@ class OdomSubscriber(Node):
         z_orient = msg.pose.pose.orientation.z
         w = msg.pose.pose.orientation.w
 
-        print('pose x:',x , 'pose y:', y , 'pose z:', z)
+        print('pose x:',x , ' y:', y , ' z:', z)
         
-        print('orient x:',x_orient , 'orient y:', y_orient , 'orient z:', z_orient, 'w:', w)
+        print('orient x:',x_orient , ' y:', y_orient , ' z:', z_orient, 'w:', w)
         print(' ')
 
         

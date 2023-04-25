@@ -23,7 +23,9 @@ setup(
             'talker = odom_pubsub.publisher_member_function:main',
             'listener = odom_pubsub.subscriber_member_function:main',
             'odometry = odom_pubsub.check_odom:main',
-            'imu = odom_pubsub.check_imu:main'
+            'imu = odom_pubsub.check_imu:main',
+            'camera_noise_subscriber = odom_pubsub.camera_noise_subscriber:main',
+            'camera_noise_publisher = odom_pubsub.camera_noise_publisher:main'
         ],
     },
 )

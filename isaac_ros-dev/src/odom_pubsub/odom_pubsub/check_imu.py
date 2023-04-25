@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 import rclpy
 from rclpy.node import Node
@@ -12,8 +12,8 @@ class ImuSubscriber(Node):
     def __init__(self):
         super().__init__('imu_subscriber')
         self.subscription = self.create_subscription(
-            Imu,
-            '/imu',
+            CameraInfo,
+            'camera_info_right',
             self.callback,
             10)
         
@@ -40,9 +40,9 @@ class ImuSubscriber(Node):
         z_orient = msg.orientation.z
         w = msg.orientation.w
 
-        print('angular_velocity x:',x_ang , 'angular_velocity y:', y_ang , 'angular_velocity z:', z_ang)
-        print('linear_acceleration x:',x_lin , 'linear_acceleration y:', y_lin , 'linear_acceleration z:', z_lin)
-        print('orient x:',x_orient , 'orient y:', y_orient , 'orient z:', z_orient, 'w:', w)
+        print('angular_velocity x:',x_ang , ' y:', y_ang , ' z:', z_ang)
+        print('linear_acceleration x:',x_lin , ' y:', y_lin , ' z:', z_lin)
+        print('orient x:',x_orient , 'orient y:', y_orient , ' z:', z_orient, 'w:', w)
         print(' ')
 
         
