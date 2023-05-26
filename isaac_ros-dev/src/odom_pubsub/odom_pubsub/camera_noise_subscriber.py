@@ -28,7 +28,7 @@ class Camera_noise(Node):
             # '/depth_right',
             # self.depth_callback,
             # 10)
-
+        self.target_frame = "map"
         self.br = CvBridge()
         
         # self.subscription  # prevent unused variable warning
@@ -43,6 +43,10 @@ class Camera_noise(Node):
 
 
     def rgb_callback(self, msg):
+        image_blured = Image()
+        image_blured.header.stamp = self.get_clock().now().to_msg()
+        image_blured.header.frame_id = self.target_frame
+        
         current_frame = self.br.imgmsg_to_cv2(msg)
         current_frame = cv2.blur(current_frame, (21,21))
         cv2.imshow("test", current_frame)

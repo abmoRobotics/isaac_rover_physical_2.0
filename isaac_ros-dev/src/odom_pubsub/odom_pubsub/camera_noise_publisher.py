@@ -20,7 +20,7 @@ class Camera_noise_pub(Node):
 
         self.rgb_publish = self.create_publisher(
                 Image,
-                'rgb_right',
+                'rgb_right_blur',
                 10
             )
         
