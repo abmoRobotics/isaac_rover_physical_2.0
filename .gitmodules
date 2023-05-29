@@ -29,3 +29,7 @@
 	path = KIMERA/Kimera-VIO-ROS2
 	url = https://github.com/MIT-SPARK/Kimera-VIO-ROS2
 	branch = foxy
+[submodule "isaac_ros-dev/src/aruco_ros"]
+	path = isaac_ros-dev/src/aruco_ros
+	url = https://github.com/pal-robotics/aruco_ros.git
+	branch = humble-devel
