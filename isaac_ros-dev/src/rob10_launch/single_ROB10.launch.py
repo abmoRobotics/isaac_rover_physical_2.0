@@ -10,21 +10,22 @@ def launch_setup(context, *args, **kwargs):
     eye = perform_substitutions(context, [LaunchConfiguration('eye')])
 
     aruco_single_params = {
-        'image_is_rectified': True,
-        'marker_size': LaunchConfiguration('marker_size'),
+        #'dct_components_to_remove': LaunchConfiguration('dct_filter_size'),
+        #'image_is_rectified': True,
+        #'marker_size': LaunchConfiguration('marker_size'),
         'marker_id': LaunchConfiguration('marker_id'),
         'reference_frame': LaunchConfiguration('reference_frame'),
-        'camera_frame': 'stereo_gazebo_' + eye + '_camera_optical_frame',
-        'marker_frame': LaunchConfiguration('marker_frame'),
-        'corner_refinement': LaunchConfiguration('corner_refinement'),
+        #'camera_frame': 'camera_mount',
+        #'marker_frame': LaunchConfiguration('marker_frame'),
+        #'corner_refinement': LaunchConfiguration('corner_refinement'),
     }
 
     aruco_single = Node(
         package='aruco_ros',
         executable='single',
-        parameters=[aruco_single_params],
-        remappings=[('/camera_info', '/stereo/' + eye + '/camera_info'),
-                    ('/image', '/stereo/' + eye + '/image_rect_color')],
+        #parameters=[aruco_single_params],
+        remappings=[('/camera_info', '/camera_info_left'),
+                    ('/image', '/rgb_left')],
     )
 
     return [aruco_single]
@@ -32,8 +33,13 @@ def launch_setup(context, *args, **kwargs):
 
 def generate_launch_description():
 
+    dct_filter_size_arg = DeclareLaunchArgument(
+        'dct_filter_size', default_value='2',
+        description='dct filter size. ',
+    )
+
     marker_id_arg = DeclareLaunchArgument(
-        'marker_id', default_value='582',
+        'marker_id', default_value='0',
         description='Marker ID. '
     )
 
@@ -54,7 +60,7 @@ def generate_launch_description():
     )
 
     reference_frame = DeclareLaunchArgument(
-        'reference_frame', default_value='',
+        'reference_frame', default_value='chassis_link',
         description='Reference frame. '
         'Leave it empty and the pose will be published wrt param parent_name. '
     )
@@ -68,6 +74,7 @@ def generate_launch_description():
     # Create the launch description and populate
     ld = LaunchDescription()
 
+    ld.add_action(dct_filter_size_arg)
     ld.add_action(marker_id_arg)
     ld.add_action(marker_size_arg)
     ld.add_action(eye_arg)
