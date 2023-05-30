@@ -33,3 +33,10 @@
 	path = isaac_ros-dev/src/aruco_ros
 	url = https://github.com/pal-robotics/aruco_ros.git
 	branch = humble-devel
+[submodule "isaac_ros-dev/src/navigation2"]
+	path = isaac_ros-dev/src/navigation2
+	url = https://github.com/ros-planning/navigation2.git
+	branch = humble
+[submodule "isaac_ros-dev/src/xtensor-ros"]
+	path = isaac_ros-dev/src/xtensor-ros
+	url = https://github.com/RoboStack/xtensor-ros.git
