@@ -33,10 +33,27 @@
 	path = isaac_ros-dev/src/aruco_ros
 	url = https://github.com/pal-robotics/aruco_ros.git
 	branch = humble-devel
+[submodule "isaac_ros-dev/src/xtensor-ros"]
+	path = isaac_ros-dev/src/xtensor-ros
+	url = https://github.com/RoboStack/xtensor-ros.git
 [submodule "isaac_ros-dev/src/navigation2"]
 	path = isaac_ros-dev/src/navigation2
 	url = https://github.com/ros-planning/navigation2.git
 	branch = humble
-[submodule "isaac_ros-dev/src/xtensor-ros"]
-	path = isaac_ros-dev/src/xtensor-ros
-	url = https://github.com/RoboStack/xtensor-ros.git
+[submodule "isaac_ros-dev/src/xtl"]
+	path = isaac_ros-dev/src/xtl
+	url = https://github.com/xtensor-stack/xtl.git
+[submodule "isaac_ros-dev/src/xtensor"]
+	path = isaac_ros-dev/src/xtensor
+	url = https://github.com/xtensor-stack/xtensor
+[submodule "isaac_ros-dev/src/xsimd"]
+	path = isaac_ros-dev/src/xsimd
+	url = https://github.com/xtensor-stack/xsimd.git
+[submodule "isaac_ros-dev/src/gazebo_ros_pkgs"]
+	path = isaac_ros-dev/src/gazebo_ros_pkgs
+	url = https://github.com/ros-simulation/gazebo_ros_pkgs.git
+	branch = ros2
+[submodule "isaac_ros-dev/src/octomap"]
+	path = isaac_ros-dev/src/octomap
+	url = https://github.com/OctoMap/octomap.git
+	branch = ros2
